@@ -1,0 +1,25 @@
+﻿IndentWidth: 4
+Language: Cpp
+PointerAlignment: Left
+ColumnLimit: 100
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: Left
+BreakConstructorInitializers: BeforeColon
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterClass: true
+    AfterControlStatement: true
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: true
+    AfterStruct: true
+    BeforeElse: true
+    SplitEmptyRecord: false
+Cpp11BracedListStyle: true
+NamespaceIndentation: All
+SpaceAfterTemplateKeyword: false
+Standard: Cpp11
+AllowAllParametersOfDeclarationOnNextLine : true
+SortIncludes: false
+AlwaysBreakTemplateDeclarations: true
+BinPackArguments: true
