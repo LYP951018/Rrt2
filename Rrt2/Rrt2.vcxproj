@@ -135,6 +135,7 @@
     <ClInclude Include="Vec3.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Accelerations\AccelerationBase.cpp" />
     <ClCompile Include="Accelerations\Bvh.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Geometries\GeometryBase.cpp" />
