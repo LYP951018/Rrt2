@@ -26,8 +26,6 @@ public:
 	inline static constexpr std::uint32_t kMaxDepth = 16;
 
 	OctTree(const BoundingBox& sceneBoundingBox);
-	
-	DEFAULT_MOVE(OctTree)
 
 	void Build();
 	void Insert(const GeometryBase* geometry);
