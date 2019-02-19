@@ -11,7 +11,7 @@ struct OctTreeNode
 {
 	OctTreeNode();
 
-	OctTreeNode* children[8];
+	std::unique_ptr<OctTreeNode> children[8];
 	//因为插入是有层数限制的，层数到顶了直接 push_back，会出现一个节点有多个 Geometry 的情况。
 	std::vector<const GeometryBase*> geometries;
 	BoundingBox boundingBox;
@@ -26,16 +26,19 @@ public:
 	inline static constexpr std::uint32_t kMaxDepth = 16;
 
 	OctTree(const BoundingBox& sceneBoundingBox);
+	
+	DEFAULT_MOVE(OctTree)
+
 	void Build();
 	void Insert(const GeometryBase* geometry);
-	const OctTreeNode* GetRoot() const { return m_root; }
+	const OctTreeNode* GetRoot() const { return m_root.get(); }
 
 private:
 	//void Insert(OctTreeNode* node, const GeometryBase* geometry);
 	void Build(OctTreeNode* node);
 	void InsertSimd(OctTreeNode* node, const GeometryBase* geometry, std::uint32_t depth);
 
-	OctTreeNode* m_root;
+	std::unique_ptr<OctTreeNode> m_root;
 };
 
 class Bvh : public AccelerationBase

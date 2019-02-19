@@ -9,45 +9,48 @@ OctTreeNode::OctTreeNode()
 
 OctTree::OctTree(const BoundingBox& sceneBoundingBox)
 {
-	std::unique_ptr<OctTreeNode> root = std::make_unique<OctTreeNode>();
-	root->boundingBox = sceneBoundingBox;
-	m_root = root.release();
+	m_root = std::make_unique<OctTreeNode>();
+	m_root->boundingBox = sceneBoundingBox;
 }
 
 void OctTree::Build()
 {
 	//TODO: 这里可以不用递归，用层序遍历出一个 vector，从后向前处理。
-	Build(m_root);
+	Build(m_root.get());
 }
 
 //因为只要物体的中心在 bounding box 里面，就算它在该节点下，Insert 后的
 //Bounding box 可能没有完全覆盖该物体，所以需要 build 这一步来更新。
 void OctTree::Build(OctTreeNode* node)
 {
+	using namespace DirectX;
+	XMVECTOR minVert = g_XMNegInfinity, maxVert = g_XMInfinity;
 	if (node->IsLeaf)
 	{
-		assert(false);
-		//node->boundingBox = node->geometry->GetBoundingBox();
+		for (const GeometryBase* const geometry : node->geometries)
+		{
+			const BoundingBox& boundingBox = geometry->GetBoundingBox();
+			minVert = XMVectorMax(minVert, boundingBox.GetMin().Load());
+			maxVert = XMVectorMin(maxVert, boundingBox.GetMax().Load());
+		}
 	}
 	else
 	{
-		using namespace DirectX;
-		XMVECTOR minVert = g_XMNegInfinity, maxVert = g_XMInfinity;
-		for (OctTreeNode* const child : node->children)
+		for (const std::unique_ptr<OctTreeNode>& child : node->children)
 		{
 			if (child == nullptr) continue;
-			Build(child);
+			Build(child.get());
 			const BoundingBox& boundingBox = child->boundingBox;
 			minVert = XMVectorMax(minVert, boundingBox.GetMin().Load());
 			maxVert = XMVectorMin(maxVert, boundingBox.GetMax().Load());
 		}
-		node->boundingBox = BoundingBox(Vec3::FromVec(minVert), Vec3::FromVec(maxVert));
 	}
+	node->boundingBox = BoundingBox(Vec3::FromVec(minVert), Vec3::FromVec(maxVert));
 }
 
 void OctTree::Insert(const GeometryBase* geometry)
 {
-	InsertSimd(m_root, geometry, 1);
+	InsertSimd(m_root.get(), geometry, 1);
 }
 
 void OctTree::InsertSimd(OctTreeNode* node, const GeometryBase* geometry, std::uint32_t depth)
@@ -87,14 +90,13 @@ void OctTree::InsertSimd(OctTreeNode* node, const GeometryBase* geometry, std::u
 		const XMVECTOR length = XMVectorScale(XMVectorSubtract(nodeMax, nodeMin), 0.5f);
 		const XMVECTOR childBoxMax = XMVectorAdd(childBoxMin, length);
 		
-		OctTreeNode*& child = node->children[childIndex];
+		std::unique_ptr<OctTreeNode>& child = node->children[childIndex];
 		if (child == nullptr)
 		{
-			std::unique_ptr<OctTreeNode> childNode = std::make_unique<OctTreeNode>();
-			childNode->boundingBox = BoundingBox(Vec3::FromVec(childBoxMin), Vec3::FromVec(childBoxMax));
-			child = childNode.release();
+			child = std::make_unique<OctTreeNode>();
+			child->boundingBox = BoundingBox(Vec3::FromVec(childBoxMin), Vec3::FromVec(childBoxMax));
 		}
-		InsertSimd(child, geometry, depth + 1);
+		InsertSimd(child.get(), geometry, depth + 1);
 	}
 }
 
