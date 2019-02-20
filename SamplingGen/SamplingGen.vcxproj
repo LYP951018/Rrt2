@@ -20,32 +20,32 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{9618A394-98A1-4845-BCBE-0B393B4DFDDA}</ProjectGuid>
-    <RootNamespace>Rrt2</RootNamespace>
+    <ProjectGuid>{6F60C539-D6A5-4055-AC91-0B20B71F27C4}</ProjectGuid>
+    <RootNamespace>SamplingGen</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -69,31 +69,18 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(ProjectDir)3rd\Libs\x64\Debug</LibraryPath>
-    <IncludePath>$(ProjectDir)3rd\Include;$(IncludePath)</IncludePath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)3rd\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Rrt2\3rd\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)3rd\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Rrt2\3rd\Include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)Rrt2\3rd\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)3rd\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)Rrt2\3rd\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-    </ClCompile>
-    <Lib>
-      <AdditionalDependencies>pcg-c.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -102,9 +89,15 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
-    <Lib>
-      <AdditionalDependencies>pcg-c.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -137,36 +130,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Accelerations\AccelerationBase.hpp" />
-    <ClInclude Include="Accelerations\Bvh.hpp" />
-    <ClInclude Include="Accelerations\Extents.hpp" />
-    <ClInclude Include="Accelerations\TriangleBvh.hpp" />
-    <ClInclude Include="Accelerations\TrivialAcceleration.hpp" />
-    <ClInclude Include="BoundingBox.hpp" />
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="CommonDefs.hpp" />
-    <ClInclude Include="Geometries\GeometryBase.hpp" />
-    <ClInclude Include="Geometries\Triangle.hpp" />
-    <ClInclude Include="Helpers.hpp" />
-    <ClInclude Include="HitRecord.hpp" />
-    <ClInclude Include="Material.hpp" />
-    <ClInclude Include="Mesh.hpp" />
-    <ClInclude Include="Ray.hpp" />
-    <ClInclude Include="Sampling.hpp" />
-    <ClInclude Include="Scene.hpp" />
-    <ClInclude Include="Vec3.hpp" />
+    <ProjectReference Include="..\Rrt2\Rrt2.vcxproj">
+      <Project>{9618a394-98a1-4845-bcbe-0b393b4dfdda}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Accelerations\AccelerationBase.cpp" />
-    <ClCompile Include="Accelerations\Bvh.cpp" />
-    <ClCompile Include="BoundingBox.cpp" />
-    <ClCompile Include="Geometries\GeometryBase.cpp" />
-    <ClCompile Include="Geometries\Triangle.cpp" />
-    <ClCompile Include="Ray.cpp" />
-    <ClCompile Include="Sampling.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="StbImpl.cpp" />
-    <ClCompile Include="Vec3.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
