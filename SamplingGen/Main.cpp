@@ -1,4 +1,4 @@
-#include <Rrt2/Sampling.hpp>
+ï»¿#include <Rrt2/Sampling.hpp>
 #include <Rrt2/Vec3.hpp>
 #include <pcg_variants.h>
 #include <stb_image_write.h>
@@ -26,6 +26,6 @@ int main()
 		pngBytes[destIndex + 2] = std::byte{ 255 };
 	}
 
-	//ÕâÀïµÄ 3 Ö¸µÄÊÇ RGB¡£
+	//è¿™é‡Œçš„ 3 æŒ‡çš„æ˜¯ RGBã€‚
 	assert(stbi_write_png(".\\result.png", kWidth, kHeight, 3, pngBytes.data(), kWidth * kSizePerPixel) != 0);
 }
