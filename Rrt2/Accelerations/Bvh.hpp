@@ -1,48 +1,83 @@
-#pragma once
+ï»¿#pragma once
 
 #include "AccelerationBase.hpp"
 #include "../BoundingBox.hpp"
-#include <vector>
+#include "SimdTriangle.hpp"
+#include "SimdBoundingBox.hpp"
+#include "../AlignedVec.hpp"
 #include <gsl/span>
 
 class GeometryBase;
 
-struct OctTreeNode
-{
-	OctTreeNode();
+struct InteriorNode;
+struct Leaf;
 
-	std::unique_ptr<OctTreeNode> children[8];
-	//ÒòÎª²åÈëÊÇÓÐ²ãÊýÏÞÖÆµÄ£¬²ãÊýµ½¶¥ÁËÖ±½Ó push_back£¬»á³öÏÖÒ»¸ö½ÚµãÓÐ¶à¸ö Geometry µÄÇé¿ö¡£
-	std::vector<const GeometryBase*> geometries;
-	BoundingBox boundingBox;
-	//ÆäÊµ¾ÍÊÇÓÐÄ¾ÓÐ children¡£
-	bool IsLeaf;
+struct NodeRef
+{
+  public:
+    enum Kind
+    {
+        kNode = 0,
+        kLeaf
+    };
+
+  private:
+    std::uintptr_t m_nodeRef;
+
+    inline static constexpr std::uintptr_t kMask = 1;
+    inline static constexpr std::uintptr_t kUnmask = ~kMask;
+
+  public:
+    NodeRef(const Leaf* leaf);
+    NodeRef(const InteriorNode* node);
+    NodeRef();
+
+    Kind GetKind() const
+    {
+        return (m_nodeRef & kMask) == 0 ? kLeaf : kNode;
+        // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
+    }
+
+    const InteriorNode* GetInteriorNode() const
+    {
+        assert(GetKind() == kNode);
+        return reinterpret_cast<const InteriorNode*>(GetPtr());
+    }
+
+    gsl::span<const SimdTriangle> GetLeafPrimitives() const;
+
+    const std::byte* GetPtr() const
+    {
+        return reinterpret_cast<const std::byte*>(m_nodeRef & kUnmask);
+    }
 };
 
-
-struct OctTree
+struct alignas(16) InteriorNode
 {
-public:
-	inline static constexpr std::uint32_t kMaxDepth = 16;
-
-	OctTree(const BoundingBox& sceneBoundingBox);
-
-	void Build();
-	void Insert(const GeometryBase* geometry);
-	const OctTreeNode* GetRoot() const { return m_root.get(); }
-
-private:
-	//void Insert(OctTreeNode* node, const GeometryBase* geometry);
-	void Build(OctTreeNode* node);
-	void InsertSimd(OctTreeNode* node, const GeometryBase* geometry, std::uint32_t depth);
-
-	std::unique_ptr<OctTreeNode> m_root;
+    SimdBoundingBox childrenBoxes;
+    NodeRef children[8];
 };
 
-class Bvh : public AccelerationBase
+struct alignas(16) Leaf
 {
-public:
-	std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
+    AlignedVec<SimdTriangle> primitives;
+};
 
-private:
+class PrimRef;
+
+struct Bvh : AccelerationBase
+{
+  public:
+    inline static constexpr std::uint32_t kMaxDepth = 16;
+
+    Bvh(const Scene* scene);
+
+    void Build() override;
+
+  private:
+    NodeRef Build(gsl::span<PrimRef> prims, BoundingBox& boundingBox);
+
+    const Scene* m_scene;
+    NodeRef m_root;
+    BoundingBox m_rootBox;
 };

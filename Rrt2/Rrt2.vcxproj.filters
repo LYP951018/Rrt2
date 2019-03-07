@@ -30,9 +30,6 @@
     <ClInclude Include="Ray.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommonDefs.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vec3.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -40,12 +37,6 @@
       <Filter>Header Files\Geometries</Filter>
     </ClInclude>
     <ClInclude Include="HitRecord.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Geometries\Triangle.hpp">
-      <Filter>Header Files\Geometries</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Material.hpp">
@@ -73,6 +64,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sampling.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Simd.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Accelerations\SimdTriangle.hpp">
+      <Filter>Header Files\Accelerations</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometries\TriangleMesh.hpp">
+      <Filter>Header Files\Geometries</Filter>
+    </ClInclude>
+    <ClInclude Include="Accelerations\SimdBoundingBox.hpp">
+      <Filter>Header Files\Accelerations</Filter>
+    </ClInclude>
+    <ClInclude Include="AlignedVec.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PrimRef.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Store.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -105,6 +117,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sampling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PrimRef.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Accelerations\SimdTriangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometries\TriangleMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Accelerations\SimdBoundingBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Store.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

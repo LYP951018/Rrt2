@@ -1,17 +1,24 @@
-#include <catch.hpp>
+﻿#include <catch.hpp>
 #include <Rrt2/Accelerations/Bvh.hpp>
-#include <Rrt2/Geometries/Triangle.hpp>
+#include <Rrt2/Geometries/TriangleMesh.hpp>
+#include <Rrt2/Scene.hpp>
 
-TEST_CASE("OctTree construction", "[OctTree]")
+TEST_CASE("Bvh construction", "[Bvh]")
 {
-    OctTree tree{BoundingBox{Vec3{-1.0f, -1.0f, -1.0f}, Vec3{1.0f, 1.0f, 1.0f}}};
-	const std::unique_ptr<Triangle> triangle1 = std::make_unique<Triangle>(
-		Vec3{ 0.0f, 0.0f, 0.0f }, Vec3{ 0.0f, 1.0f, 0.0f }, Vec3{ 1.0f, 0.0f, 0.0f });
-	tree.Insert(triangle1.get());
-	const std::unique_ptr<Triangle> triangle2 = std::make_unique<Triangle>(
-		Vec3{ 0.0f, 0.0f, 0.0f }, Vec3{ 0.0f, 1.0f, 0.0f }, Vec3{ -1.0f, 0.0f, 0.0f });
-	tree.Insert(triangle2.get());
-	const OctTreeNode* const root = tree.GetRoot();
-	REQUIRE(root->children[2] != nullptr);
-	REQUIRE(root->children[3] != nullptr);
+    std::vector<Vec3f> vertexBuffer1{Vec3f{0.0f, 0.0f, 0.0f}, Vec3f{0.0f, 1.0f, 0.0f},
+                                     Vec3f{1.0f, 1.0f, 0.0f}, Vec3f{1.0f, 1.0f, 0.0f},
+                                     Vec3f{1.0f, 0.0f, 0.0f}, Vec3f{0.0f, 0.0f, 0.0f}};
+    std::vector<TriangleIndices> indices1{TriangleIndices{0, 1, 2}, TriangleIndices{3, 4, 5}};
+    const std::unique_ptr<Scene> scene = std::make_unique<Scene>();
+    scene->AddTriangleMesh(
+        std::make_unique<TriangleMesh>(std::move(vertexBuffer1), std::move(indices1)));
+
+    std::vector<Vec3f> vertexBuffer2{Vec3f{1.0f, 0.0f, 0.0f}, Vec3f{1.0f, 1.0f, 0.0f},
+                                     Vec3f{2.0f, 1.0f, 0.0f}, Vec3f{2.0f, 1.0f, 0.0f},
+                                     Vec3f{2.0f, 0.0f, 0.0f}, Vec3f{1.0f, 0.0f, 0.0f}};
+    std::vector<TriangleIndices> indices2{TriangleIndices{0, 1, 2}, TriangleIndices{3, 4, 5}};
+    scene->AddTriangleMesh(
+        std::make_unique<TriangleMesh>(std::move(vertexBuffer2), std::move(indices2)));
+
+    scene->Ready();
 }

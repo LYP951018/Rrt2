@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "CommonDefs.hpp"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 
 #define CONCAT_IMPL(A, B) A##B
 
@@ -12,27 +12,28 @@
 #define DEF_GETTER(type, name, member) \
     type name() const { return member; }
 
-inline DirectX::XMVECTOR Load(const DirectX::XMFLOAT3& f3) { return DirectX::XMLoadFloat3(&f3); }
-inline void Store(DirectX::XMVECTOR vec, DirectX::XMFLOAT3& f3)
-{
-    DirectX::XMStoreFloat3(&f3, vec);
-}
+#define SET_COPY(deleteOrDefault, type)  \
+    type(const type&) = deleteOrDefault; \
+    type& operator=(const type&) = deleteOrDefault;
 
-inline DirectX::XMFLOAT3 Store(DirectX::XMVECTOR vec)
-{
-    DirectX::XMFLOAT3 result;
-    DirectX::XMStoreFloat3(&result, vec);
-    return result;
-}
+#define SET_MOVE(deleteOrDefault, type) \
+    type(type&&) = deleteOrDefault;     \
+    type& operator=(type&&) = deleteOrDefault;
 
-inline float Float3At(const DirectX::XMFLOAT3& f3, std::uint32_t index)
-{
-    assert(index >= 0 && index < 3);
-    return reinterpret_cast<const float*>(reinterpret_cast<const std::byte*>(&f3))[index];
-}
+#define DEFAULT_COPY(type) SET_COPY(default, type)
+#define DELETE_COPY(type) SET_COPY(delete, type)
+#define DEFAULT_MOVE(type) SET_MOVE(default, type)
+#define DELETE_MOVE(type) SET_MOVE(delete, type)
 
-inline float Dot(DirectX::XMVECTOR lhs, DirectX::XMVECTOR rhs)
+template<class To, class From>
+typename std::enable_if<(sizeof(To) == sizeof(From)) && std::is_trivially_copyable<From>::value &&
+                            std::is_trivial<To>::value,
+                        // this implementation requires that To is trivially default constructible
+                        To>::type
+// constexpr support needs compiler magic
+bit_cast(const From& src) noexcept
 {
-	using namespace DirectX;
-	return XMVectorGetX(XMVector3Dot(lhs, rhs));
+    To dst;
+    std::memcpy(&dst, &src, sizeof(To));
+    return dst;
 }

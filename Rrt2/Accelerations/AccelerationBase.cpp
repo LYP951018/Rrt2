@@ -1,5 +1,3 @@
 #include "AccelerationBase.hpp"
 
-AccelerationBase::~AccelerationBase()
-{
-}
+AccelerationBase::~AccelerationBase() {}

@@ -1,165 +1,105 @@
-#include "Bvh.hpp"
+ï»¿#include "Bvh.hpp"
 #include "../Geometries/GeometryBase.hpp"
+#include "../Scene.hpp"
+#include "../PrimRef.hpp"
+#include "../BoundingBox.hpp"
 
-OctTreeNode::OctTreeNode()
-	: children{},
-	IsLeaf(true)
+BoundingBox GetBounds(gsl::span<const PrimRef> prims)
 {
+    BoundingBox box;
+    Float4& lower = box.corners[0];
+    Float4& upper = box.corners[1];
+    lower = GetNegInfinity();
+    upper = GetInfinity();
+    for (const PrimRef& prim : prims)
+    {
+        lower = Min(lower, prim.lower);
+        upper = Max(upper, prim.upper);
+    }
+    return box;
 }
 
-OctTree::OctTree(const BoundingBox& sceneBoundingBox)
+Bvh::Bvh(const Scene* scene) : m_scene{scene} {}
+
+void Bvh::Build()
 {
-	m_root = std::make_unique<OctTreeNode>();
-	m_root->boundingBox = sceneBoundingBox;
+    AlignedVec<PrimRef> primRefs;
+    for (const std::unique_ptr<GeometryBase>& geometry : m_scene->GetGeometries())
+    {
+        geometry->FillPrimitiveArray(primRefs);
+    }
+
+    m_root = Build(gsl::make_span(primRefs), m_rootBox);
 }
 
-void OctTree::Build()
+NodeRef Bvh::Build(gsl::span<PrimRef> prims, BoundingBox& boundingBox)
 {
-	//TODO: ÕâÀï¿ÉÒÔ²»ÓÃµÝ¹é£¬ÓÃ²ãÐò±éÀú³öÒ»¸ö vector£¬´ÓºóÏòÇ°´¦Àí¡£
-	Build(m_root.get());
+    if (prims.size() <= kMaxSimdWidth)
+    {
+        Leaf* const leaf = new Leaf;
+        const std::uint32_t simdRequired =
+            SimdTriangle::GetSimdCount(static_cast<std::uint32_t>(prims.size()));
+        leaf->primitives.reserve(simdRequired);
+        std::uint32_t start = 0;
+        std::uint32_t end = static_cast<std::uint32_t>(prims.size());
+        for (std::uint32_t i = 0; i < simdRequired && start < end; ++i)
+        {
+            SimdTriangle triangle;
+            triangle.Fill(prims.data(), start, end, m_scene);
+            leaf->primitives.push_back(triangle);
+        }
+        return NodeRef{leaf};
+    }
+    boundingBox = GetBounds(prims);
+    const Float4 center =
+        Div(Add(boundingBox.corners[0], boundingBox.corners[1]), MakeFloats(2.0f));
+    const float centerX = First(center);
+    const float centerY = Second(center);
+    //æš‚æ—¶ä½¿ç”¨ SSEï¼Œåˆ†æˆ 4 ä»½
+    const auto xPivot = std::partition(prims.begin(), prims.end(), [&](const PrimRef& rhs) {
+        return First(rhs.GetCenter()) > centerX;
+    });
+
+    const auto y1Pivot = std::partition(prims.begin(), xPivot, [&](const PrimRef& rhs) {
+        return Second(rhs.GetCenter()) > centerY;
+    });
+
+    const auto y2Pivot = std::partition(
+        xPivot, prims.end(), [&](const PrimRef& rhs) { return Second(rhs.GetCenter()) > centerY; });
+
+    const std::ptrdiff_t x0 = y1Pivot - prims.begin();
+    const std::ptrdiff_t x1 = xPivot - y1Pivot;
+    const std::ptrdiff_t x2 = y2Pivot - xPivot;
+
+    InteriorNode* const node = new InteriorNode;
+    BoundingBox childBBox;
+    const auto build = [&](std::ptrdiff_t start, std::ptrdiff_t count, std::uint32_t index) {
+        node->children[index] = Build(prims.subspan(start, count), childBBox);
+        node->childrenBoxes.Set(index, childBBox);
+    };
+    build(0, x0, 0);
+    build(x0, x1, 1);
+    build(xPivot - prims.begin(), x2, 2);
+    build(y2Pivot - prims.begin(), prims.end() - y2Pivot, 3);
+    return NodeRef{node};
 }
 
-//ÒòÎªÖ»ÒªÎïÌåµÄÖÐÐÄÔÚ bounding box ÀïÃæ£¬¾ÍËãËüÔÚ¸Ã½ÚµãÏÂ£¬Insert ºóµÄ
-//Bounding box ¿ÉÄÜÃ»ÓÐÍêÈ«¸²¸Ç¸ÃÎïÌå£¬ËùÒÔÐèÒª build ÕâÒ»²½À´¸üÐÂ¡£
-void OctTree::Build(OctTreeNode* node)
+NodeRef::NodeRef(const Leaf* leaf) : m_nodeRef{reinterpret_cast<std::uintptr_t>(leaf)}
 {
-	using namespace DirectX;
-	XMVECTOR minVert = g_XMNegInfinity, maxVert = g_XMInfinity;
-	if (node->IsLeaf)
-	{
-		for (const GeometryBase* const geometry : node->geometries)
-		{
-			const BoundingBox& boundingBox = geometry->GetBoundingBox();
-			minVert = XMVectorMax(minVert, boundingBox.GetMin().Load());
-			maxVert = XMVectorMin(maxVert, boundingBox.GetMax().Load());
-		}
-	}
-	else
-	{
-		for (const std::unique_ptr<OctTreeNode>& child : node->children)
-		{
-			if (child == nullptr) continue;
-			Build(child.get());
-			const BoundingBox& boundingBox = child->boundingBox;
-			minVert = XMVectorMax(minVert, boundingBox.GetMin().Load());
-			maxVert = XMVectorMin(maxVert, boundingBox.GetMax().Load());
-		}
-	}
-	node->boundingBox = BoundingBox(Vec3::FromVec(minVert), Vec3::FromVec(maxVert));
+    assert((m_nodeRef & kMask) == 0);
 }
 
-void OctTree::Insert(const GeometryBase* geometry)
+NodeRef::NodeRef(const InteriorNode* node)
+    : m_nodeRef{reinterpret_cast<std::uintptr_t>(node) | kMask}
 {
-	InsertSimd(m_root.get(), geometry, 1);
+    // FIXME
+    assert((reinterpret_cast<std::uintptr_t>(node) & kMask) == 1);
 }
 
-void OctTree::InsertSimd(OctTreeNode* node, const GeometryBase* geometry, std::uint32_t depth)
+NodeRef::NodeRef() : m_nodeRef{} {}
+
+gsl::span<const SimdTriangle> NodeRef::GetLeafPrimitives() const
 {
-	if (node->IsLeaf)
-	{
-		if (node->geometries.size() == 0 || depth == kMaxDepth)
-		{
-			node->geometries.push_back(geometry);
-		}
-		else
-		{
-			//ÒÑ¾­ÓÐÁËÒ»¸ö¶ÔÏó£¬ÓÖÒª²åÈëÒ»¸ö£¬´ËÊ±Òª·ÖÁÑ¡£
-			assert(node->geometries.size() == 1);
-			node->IsLeaf = false;
-			const GeometryBase* const oldGeometry = node->geometries[0];
-			node->geometries.pop_back();
-			InsertSimd(node, oldGeometry, depth + 1);
-			InsertSimd(node, geometry, depth + 1);
-		}
-	}
-	else
-	{
-		using namespace DirectX;
-		//°Ñ node ·Ö³É 8 ¸ö cube
-		const BoundingBox& cube = node->boundingBox;
-		const XMVECTOR nodeMin = cube.GetMin().Load();
-		const XMVECTOR nodeMax = cube.GetMax().Load();
-		const XMVECTOR nodeCenter = BoundingBox::GetCentroidSimd(nodeMin, nodeMax);
-		const BoundingBox& geometryBox = geometry->GetBoundingBox();
-		const XMVECTOR geometryMin = geometryBox.GetMin().Load();
-		const XMVECTOR geometryMax = geometryBox.GetMax().Load();
-		const XMVECTOR geometryCenter = BoundingBox::GetCentroidSimd(geometryMin, geometryMax);
-		const XMVECTOR comparation = XMVectorGreater(geometryCenter, nodeCenter);
-		const int childIndex = _mm_movemask_ps(comparation) & 0b111;
-		const XMVECTOR childBoxMin = XMVectorSelect(nodeCenter, geometryCenter, comparation);
-		const XMVECTOR length = XMVectorScale(XMVectorSubtract(nodeMax, nodeMin), 0.5f);
-		const XMVECTOR childBoxMax = XMVectorAdd(childBoxMin, length);
-		
-		std::unique_ptr<OctTreeNode>& child = node->children[childIndex];
-		if (child == nullptr)
-		{
-			child = std::make_unique<OctTreeNode>();
-			child->boundingBox = BoundingBox(Vec3::FromVec(childBoxMin), Vec3::FromVec(childBoxMax));
-		}
-		InsertSimd(child.get(), geometry, depth + 1);
-	}
+    assert(GetKind() == kLeaf);
+    return gsl::make_span(reinterpret_cast<const Leaf*>(GetPtr())->primitives);
 }
-
-
-
-//ÄÜµ÷ÓÃµ½Õâ¸öº¯Êý¾ÍËµÃ÷ geometry ±£Ö¤ÔÚ node ÀïÃæ¡£
-// Áô×ÅÎªÁË benchmark
-//void OctTree::Insert(OctTreeNode* node, const GeometryBase * geometry)
-//{
-//	if (!node->IsLeaf())
-//	{
-//		node->geometry = geometry;
-//	}
-//	else
-//	{
-//		//°Ñ node ·Ö³É 8 ¸ö cube
-//		const BoundingBox& cube = node->boundingBox;
-//		const Vec3& minVert = cube.GetMin();
-//		const Vec3& maxVert = cube.GetMax();
-//		const float deltaX = (maxVert.x - minVert.x) / 2.0f;
-//		const BoundingBox& geometryBox = geometry->GetBoundingBox();
-//		const Vec3& geometryBoxCenter = geometryBox.GetCentroid();
-//		const Vec3& nodeBoxCenter = cube.GetCentroid();
-//		std::size_t childIndex = 0;
-//		Vec3 childBoxMin, childBoxMax;
-//		if (geometryBoxCenter.x > nodeBoxCenter.x)
-//		{
-//			childIndex = 4;
-//			childBoxMin.x = nodeBoxCenter.x;
-//		}
-//		else
-//		{
-//			childBoxMin.x = minVert.x;
-//		}
-//		if (geometryBoxCenter.y > nodeBoxCenter.y)
-//		{
-//			childIndex += 2;
-//			childBoxMin.y = nodeBoxCenter.y;
-//		}
-//		else
-//		{
-//			childBoxMin.y = minVert.y;
-//		}
-//		if (geometryBoxCenter.z > nodeBoxCenter.z)
-//		{
-//			childIndex += 1;
-//			childBoxMin.z = nodeBoxCenter.z;
-//		}
-//		else
-//		{
-//			childBoxMin.z = minVert.z;
-//		}
-//		childBoxMax.x = childBoxMin.x + deltaX;
-//		childBoxMax.y = childBoxMin.y + deltaX;
-//		childBoxMax.z = childBoxMin.z + deltaX;
-//
-//		OctTreeNode*& child = node->children[childIndex];
-//		if (child == nullptr)
-//		{
-//			std::unique_ptr<OctTreeNode> childNode = std::make_unique<OctTreeNode>();
-//			childNode->boundingBox = BoundingBox(childBoxMin, childBoxMax);
-//			child = childNode.release();
-//		}
-//		Insert(child, geometry);
-//	}
-//}

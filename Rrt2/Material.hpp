@@ -2,5 +2,5 @@
 
 class Material
 {
-	virtual ~Material();
+    virtual ~Material();
 };

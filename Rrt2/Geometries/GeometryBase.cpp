@@ -1,5 +1,3 @@
 #include "GeometryBase.hpp"
 
-GeometryBase::~GeometryBase()
-{
-}
+GeometryBase::~GeometryBase() {}

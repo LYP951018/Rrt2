@@ -1,9 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <cstddef>
 #include <gsl/span>
-#include "CommonDefs.hpp"
 
 struct StreamInfo
 {
@@ -21,7 +20,7 @@ class Mesh
                               channel.size() / sizeof(T));
     }
 
-    gsl::span<const PointType> GetPositions() const { return GetStreamAs<const PointType>(0); }
+    gsl::span<const Vec3f> GetPositions() const { return GetStreamAs<const Vec3f>(0); }
 
   private:
     std::vector<std::vector<std::byte>> m_channels;

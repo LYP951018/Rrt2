@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <gsl/span>
 #include <pcg_variants.h>
@@ -6,8 +6,8 @@
 
 float Rand01(pcg32_random_t& state);
 
-void GenRandSeq(pcg32_random_t& state, gsl::span<Vec2> seq);
+void GenRandSeq(pcg32_random_t& state, gsl::span<Vec2f> seq);
 
-void Jitter(pcg32_random_t& state, gsl::span<Vec2> seq);
+void Jitter(pcg32_random_t& state, gsl::span<Vec2f> seq);
 
-void NRooks(pcg32_random_t& state, gsl::span<Vec2> seq);
+void NRooks(pcg32_random_t& state, gsl::span<Vec2f> seq);

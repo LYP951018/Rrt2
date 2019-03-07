@@ -1,6 +1,6 @@
-#include "TestHelpers.hpp"
+﻿#include "TestHelpers.hpp"
 
-bool operator==(const Vec3 & lhs, const Vec3 & rhs)
+bool operator==(const Vec3f& lhs, const Vec3f& rhs)
 {
-	return Approx{ lhs.x } == rhs.x && Approx{ lhs.y } == rhs.y && Approx{ lhs.z } == rhs.z;
+    return Approx{lhs.x} == rhs.x && Approx{lhs.y} == rhs.y && Approx{lhs.z} == rhs.z;
 }

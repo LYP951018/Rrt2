@@ -140,32 +140,42 @@
     <ClInclude Include="Accelerations\AccelerationBase.hpp" />
     <ClInclude Include="Accelerations\Bvh.hpp" />
     <ClInclude Include="Accelerations\Extents.hpp" />
+    <ClInclude Include="Accelerations\SimdBoundingBox.hpp" />
+    <ClInclude Include="Accelerations\SimdTriangle.hpp" />
     <ClInclude Include="Accelerations\TriangleBvh.hpp" />
     <ClInclude Include="Accelerations\TrivialAcceleration.hpp" />
+    <ClInclude Include="AlignedVec.hpp" />
     <ClInclude Include="BoundingBox.hpp" />
     <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="CommonDefs.hpp" />
     <ClInclude Include="Geometries\GeometryBase.hpp" />
-    <ClInclude Include="Geometries\Triangle.hpp" />
+    <ClInclude Include="Geometries\TriangleMesh.hpp" />
     <ClInclude Include="Helpers.hpp" />
     <ClInclude Include="HitRecord.hpp" />
     <ClInclude Include="Material.hpp" />
-    <ClInclude Include="Mesh.hpp" />
+    <ClInclude Include="PrimRef.hpp" />
     <ClInclude Include="Ray.hpp" />
     <ClInclude Include="Sampling.hpp" />
     <ClInclude Include="Scene.hpp" />
+    <ClInclude Include="Simd.hpp" />
+    <ClInclude Include="Store.hpp" />
     <ClInclude Include="Vec3.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Accelerations\AccelerationBase.cpp" />
     <ClCompile Include="Accelerations\Bvh.cpp" />
+    <ClCompile Include="Accelerations\SimdBoundingBox.cpp" />
+    <ClCompile Include="Accelerations\SimdTriangle.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Geometries\GeometryBase.cpp" />
     <ClCompile Include="Geometries\Triangle.cpp" />
+    <ClCompile Include="Geometries\TriangleMesh.cpp" />
+    <ClCompile Include="PrimRef.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="Sampling.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="StbImpl.cpp" />
+    <ClCompile Include="Store.cpp" />
     <ClCompile Include="Vec3.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

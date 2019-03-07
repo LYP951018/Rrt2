@@ -1,12 +1,12 @@
-#pragma once
+﻿#pragma once
 
-#include "CommonDefs.hpp"
+#include "Vec3.hpp"
 
 class GeometryBase;
 
 struct HitRecord
 {
-	PointType position;
-	PointType normal;
-	float u, v;
+    Vec3f position;
+    Vec3f normal;
+    float u, v;
 };

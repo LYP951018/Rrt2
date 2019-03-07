@@ -2,19 +2,20 @@
 
 #include <cstddef>
 #include "Helpers.hpp"
+#include "Vec3.hpp"
 
 class Ray;
 
 class BoundingBox
 {
   public:
-    BoundingBox(const PointType& min, const PointType& max) : m_corners{min, max} {}
-	BoundingBox();
+    Float4 corners[2];
 
-    const PointType& GetMin() const { return m_corners[kMinIndex]; }
-    const PointType& GetMax() const { return m_corners[kMaxIndex]; }
-	const Vec3& GetCentroid() const;
-	static DirectX::XMVECTOR GetCentroidSimd(DirectX::XMVECTOR minVert, DirectX::XMVECTOR maxVert);
+    /* const Vec3f& GetMin() const { return corners[kMinIndex]; }
+     const Vec3f& GetMax() const { return corners[kMaxIndex]; }*/
+    // const Vec3f& GetCentroid() const;
+    // static DirectX::XMVECTOR GetCentroidSimd(DirectX::XMVECTOR minVert, DirectX::XMVECTOR
+    // maxVert);
 
     bool Hit(const Ray& ray, float tMin, float tMax) const;
 
@@ -24,6 +25,4 @@ class BoundingBox
         kMinIndex,
         kMaxIndex
     };
-
-    PointType m_corners[2];
 };
