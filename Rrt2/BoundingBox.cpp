@@ -11,7 +11,7 @@ bool BoundingBox::Hit(const Ray& ray, float tMin, float tMax) const
     ////第二个索引：x, y, z
     ////这里不处理 origin 和 AABB 某个顶点的某个维度相等，并且这个维度的 speed 为 0 的问题：
     ////speed 为 0，invSpeed 为 +-∞，origin 的某个维度（x, y, z）与 AABB 相减后，为 0，0 * ∞ ==
-    ///NaN。
+    /// NaN。
     // for (unsigned i = 0; i < 3; ++i)
     //{
     //	const float t0 = (corners[negs[i]][i] - ray.GetOrigin()[i]) * invSpeed[i];

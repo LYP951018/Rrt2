@@ -174,9 +174,16 @@ inline Doubles __vectorcall Sub(Doubles lhs, Doubles rhs) noexcept { return _mm_
 
 inline Float4 __vectorcall Mul(Float4 lhs, Float4 rhs) noexcept { return _mm_mul_ps(lhs, rhs); }
 
+inline Float4 __vectorcall Scale(Float4 lhs, float scale) noexcept
+{
+    return Mul(MakeFloats(scale), lhs);
+}
+
 inline Doubles __vectorcall Mul(Doubles lhs, Doubles rhs) noexcept { return _mm_mul_pd(lhs, rhs); }
 
 inline Float4 __vectorcall Div(Float4 lhs, Float4 rhs) noexcept { return _mm_div_ps(lhs, rhs); }
+
+inline Float4 __vectorcall Rcp(Float4 vec) noexcept { return _mm_rcp_ps(vec); }
 
 inline Float4 __vectorcall Sqrt(Float4 floats) noexcept { return _mm_sqrt_ps(floats); }
 
@@ -198,15 +205,6 @@ namespace Internal
     inline constexpr std::uint8_t CastToUint8(bool b) noexcept { return b ? 1 : 0; }
 } // namespace Internal
 
-template<bool b1, bool b2, bool b3, bool b4>
-inline Float4 __vectorcall Dot(Float4 lhs, Float4 rhs) noexcept
-{
-    return _mm_dp_ps(lhs, rhs,
-                     0xF | ((Internal::CastToUint8(b1) | Internal::CastToUint8(b2) << 1 |
-                             Internal::CastToUint8(b3) << 2 | Internal::CastToUint8(b4) << 3)
-                            << 4));
-}
-
 inline Float4 FloatsFromMemory(const float* p) noexcept { return _mm_loadu_ps(p); }
 
 inline Float4 FloatsFromAlignedMemory(const float* p) noexcept { return _mm_load_ps(p); }
@@ -214,3 +212,12 @@ inline Float4 FloatsFromAlignedMemory(const float* p) noexcept { return _mm_load
 inline Float4 GetInfinity() noexcept { return MakeFloats(bit_cast<float>(0x7F800000u)); }
 
 inline Float4 GetNegInfinity() noexcept { return MakeFloats(bit_cast<float>(0xFF800000u)); }
+
+inline Float4 GetOnes() noexcept { return MakeFloats(bit_cast<float>(0xFFFFFFFFu)); }
+
+inline Float4 SelectMinElement(Float4 f)
+{
+    const Float4 min1 = Min(f, PermuteFloats<1, 0, 3, 2>(f));
+    const Float4 min2 = Min(min1, PermuteFloats<2, 2, 0, 0>(min1));
+    return min2;
+}

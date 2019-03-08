@@ -73,6 +73,7 @@ struct Bvh : AccelerationBase
     Bvh(const Scene* scene);
 
     void Build() override;
+    // std::optional<HitRecord>
 
   private:
     NodeRef Build(gsl::span<PrimRef> prims, BoundingBox& boundingBox);

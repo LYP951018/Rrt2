@@ -50,3 +50,12 @@ void NRooks(pcg32_random_t& state, gsl::span<Vec2f> seq)
         std::swap(seq[i].x, seq[destIndex].x);
     }
 }
+
+void BoxFilter(gsl::span<Vec2f> seq)
+{
+    for (Vec2f& vec2 : seq)
+    {
+        vec2.x -= 0.5f;
+        vec2.y -= 0.5f;
+    }
+}

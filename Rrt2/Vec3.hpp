@@ -60,4 +60,45 @@ using Vec3fPacked = Vec3T<Floats<kMaxSimdWidth>>;
 
 std::ostream& operator<<(std::ostream& os, const Vec3f& value);
 
+inline Vec3fPacked Cross3(const Vec3fPacked& lhs, const Vec3fPacked& rhs)
+{
+    const PackedFloats s1 = Sub(Mul(lhs.y, rhs.z), Mul(lhs.z, rhs.y));
+    const PackedFloats s2 = Sub(Mul(lhs.z, rhs.x), Mul(lhs.x, rhs.z));
+    const PackedFloats s3 = Sub(Mul(lhs.x, rhs.y), Mul(lhs.y, rhs.x));
+    return Vec3fPacked{s1, s2, s3};
+}
+
+inline PackedFloats Dot3(const Vec3fPacked& lhs, const Vec3fPacked& rhs)
+{
+    const PackedFloats s0 = Mul(lhs.x, rhs.x);
+    const PackedFloats s1 = Mul(lhs.y, rhs.y);
+    const PackedFloats s2 = Mul(lhs.z, rhs.z);
+    return Add(s0, Add(s1, s2));
+}
+
+inline Vec3fPacked DupPackedFloats(PackedFloats floats)
+{
+    return Vec3fPacked{PermuteFloats<0, 0, 0, 0>(floats), PermuteFloats<1, 1, 1, 1>(floats),
+                       PermuteFloats<2, 2, 2, 2>(floats)};
+}
+
+inline Vec3fPacked DupPackedFloats(const Vec3f& vec3)
+{
+    return Vec3fPacked{
+        MakeFloats(vec3.x),
+        MakeFloats(vec3.y),
+        MakeFloats(vec3.z),
+    };
+}
+
+inline Vec3fPacked Sub(const Vec3fPacked& lhs, const Vec3fPacked& rhs)
+{
+    return Vec3fPacked{Sub(lhs.x, rhs.x), Sub(lhs.y, rhs.y), Sub(lhs.z, rhs.z)};
+}
+
+inline Vec3fPacked Scale(const Vec3fPacked& lhs, const PackedFloats& rhs)
+{
+    return Vec3fPacked{Mul(lhs.x, rhs), Mul(lhs.y, rhs), Mul(lhs.z, rhs)};
+}
+
 #undef EXTERN_VEC

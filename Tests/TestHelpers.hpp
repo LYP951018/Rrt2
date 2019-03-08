@@ -5,4 +5,5 @@
 
 //仅供测试代码使用
 
+bool operator==(const PackedFloats& lhs, const PackedFloats& rhs);
 bool operator==(const Vec3f& lhs, const Vec3f& rhs);

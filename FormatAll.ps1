@@ -1,0 +1,1 @@
+Get-ChildItem -Include "*.hpp", "*.cpp" -Recurse | % {clang-format.exe -i $_}
