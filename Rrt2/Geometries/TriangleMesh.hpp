@@ -2,6 +2,7 @@
 
 #include "GeometryBase.hpp"
 #include "../BoundingBox.hpp"
+#include "../SharedBuffer.hpp"
 #include <vector>
 
 class Material;

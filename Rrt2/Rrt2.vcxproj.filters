@@ -90,14 +90,14 @@
     <ClInclude Include="DxMathHelpers.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SharedBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Accelerations\PackedRay.hpp">
+      <Filter>Header Files\Accelerations</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BoundingBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Geometries\GeometryBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -141,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Accelerations\SimdRay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Accelerations\PackedRay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

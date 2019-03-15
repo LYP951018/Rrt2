@@ -135,6 +135,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Bvh.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Simd.cpp" />

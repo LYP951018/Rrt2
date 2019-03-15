@@ -43,7 +43,6 @@ void Camera::GetRay(const Vec2f& pixelPos, const Vec2f& thinLensPos, Ray& ray)
     const XMVECTOR target =
         m_data->filmLeftBottomCorner + pixelPos.x * m_data->uAxis + pixelPos.y * m_data->vAxis;
     ray.speed = XMVector3Normalize(target - ray.origin);
-    ray.Finalize();
 }
 
 void Camera::GenerateRays(pcg32_random_t& state, AlignedVec<Ray>& rays,

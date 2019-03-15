@@ -8,6 +8,7 @@ class Scene;
 class PrimRef;
 class TriangleMesh;
 class SingleTriangle;
+class PackedRay;
 class Ray;
 
 class alignas(16) SimdTriangle
@@ -29,5 +30,5 @@ class alignas(16) SimdTriangle
              std::uint32_t geomId);
     void Fill(const PrimRef* prims, std::uint32_t& start, std::uint32_t end, const Scene* scene);
 
-    std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax);
+    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const;
 };

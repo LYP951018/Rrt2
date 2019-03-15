@@ -7,8 +7,4 @@ class Ray
   public:
     PackedFloats origin;
     PackedFloats speed;
-    PackedFloats invSpeed;
-    PackedFloats negSpeed;
-
-    void Finalize();
 };

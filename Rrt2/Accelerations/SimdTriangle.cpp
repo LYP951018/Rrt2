@@ -3,6 +3,7 @@
 #include "../Scene.hpp"
 #include "../PrimRef.hpp"
 #include "../Store.hpp"
+#include "PackedRay.hpp"
 #include "../Ray.hpp"
 #include <algorithm>
 
@@ -38,21 +39,19 @@ void SimdTriangle::Fill(const PrimRef* prims, std::uint32_t& start, std::uint32_
     }
 }
 
-std::optional<HitRecord> SimdTriangle::Hit(const Ray& ray, float tMin, float tMax)
+std::optional<HitRecord> SimdTriangle::Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const
 {
-    const Vec3fPacked dupOrig = DupPackedFloats(ray.origin);
-    const Vec3fPacked dupDir = DupPackedFloats(ray.speed);
-    const Vec3fPacked pVec = Cross3(dupDir, e2);
+    const Vec3fPacked pVec = Cross3(packedRay.speed, e2);
     // FIXME: det == 0
     const PackedFloats det = Dot3(e1, pVec);
-    const Vec3fPacked tVec = Sub(dupOrig, v0);
+    const Vec3fPacked tVec = packedRay.origin - v0;
     const Vec3fPacked qVec = Cross3(tVec, e1);
 
     // TOOD: if tVec > det early ret?
     const PackedFloats invDet = Rcp(det);
     const PackedFloats u = Mul(Dot3(tVec, pVec), invDet);
     // FIXME: invDet is redundant here?
-    const PackedFloats v = Mul(Dot3(dupDir, qVec), invDet);
+    const PackedFloats v = Mul(Dot3(packedRay.speed, qVec), invDet);
     const PackedFloats t = Mul(Dot3(e2, qVec), invDet);
     const auto inRange = [&](PackedFloats floats) {
         const PackedFloats biggerThanZero = Greater(floats, ZeroFloats());
@@ -77,6 +76,7 @@ std::optional<HitRecord> SimdTriangle::Hit(const Ray& ray, float tMin, float tMa
     HitRecord record;
     record.geomId = geomId;
     record.primId = primId;
-    Store(Add(ray.origin, Mul(minT, ray.speed)), &record.position.x);
+	record.t = First(minT);
+    Store(Add(ray.origin, Mul(ray.speed, minT)), &record.position.x);
     return record;
 }

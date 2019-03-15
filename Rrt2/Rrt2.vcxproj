@@ -140,6 +140,7 @@
     <ClInclude Include="Accelerations\AccelerationBase.hpp" />
     <ClInclude Include="Accelerations\Bvh.hpp" />
     <ClInclude Include="Accelerations\Extents.hpp" />
+    <ClInclude Include="Accelerations\PackedRay.hpp" />
     <ClInclude Include="Accelerations\SimdBoundingBox.hpp" />
     <ClInclude Include="Accelerations\SimdRay.hpp" />
     <ClInclude Include="Accelerations\SimdTriangle.hpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Ray.hpp" />
     <ClInclude Include="Sampling.hpp" />
     <ClInclude Include="Scene.hpp" />
+    <ClInclude Include="SharedBuffer.hpp" />
     <ClInclude Include="Simd.hpp" />
     <ClInclude Include="Store.hpp" />
     <ClInclude Include="Vec3.hpp" />
@@ -164,16 +166,15 @@
   <ItemGroup>
     <ClCompile Include="Accelerations\AccelerationBase.cpp" />
     <ClCompile Include="Accelerations\Bvh.cpp" />
+    <ClCompile Include="Accelerations\PackedRay.cpp" />
     <ClCompile Include="Accelerations\SimdBoundingBox.cpp" />
     <ClCompile Include="Accelerations\SimdRay.cpp" />
     <ClCompile Include="Accelerations\SimdTriangle.cpp" />
-    <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Geometries\GeometryBase.cpp" />
     <ClCompile Include="Geometries\Triangle.cpp" />
     <ClCompile Include="Geometries\TriangleMesh.cpp" />
     <ClCompile Include="PrimRef.cpp" />
-    <ClCompile Include="Ray.cpp" />
     <ClCompile Include="Sampling.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="StbImpl.cpp" />

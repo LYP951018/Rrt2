@@ -1,6 +1,7 @@
 ﻿#include <catch.hpp>
 #include "TestHelpers.hpp"
 #include <Rrt2/Accelerations/SimdTriangle.hpp>
+#include <Rrt2/Accelerations/PackedRay.hpp>
 #include <Rrt2/Geometries/TriangleMesh.hpp>
 #include <Rrt2/Ray.hpp>
 
@@ -22,8 +23,8 @@ TEST_CASE("Triangle intersection", "[SimdTriangle]")
     Ray ray;
     ray.origin = MakeFloats(-0.5f, 0.5f, 0.5f, 0.0f);
     ray.speed = MakeFloats(0.0f, 0.0f, -1.0f, 0.0f);
-    ray.Finalize();
-    const std::optional<HitRecord> record = simd.Hit(ray, 0.0f, 1.0f);
+	PackedRay packed{ ray };
+    const std::optional<HitRecord> record = simd.Hit(packed, ray, 0.0f, 1.0f);
     CHECK(record.has_value());
     const HitRecord& rec = record.value();
     CHECK(rec.primId == 1);

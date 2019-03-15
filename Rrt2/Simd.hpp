@@ -221,3 +221,10 @@ inline Float4 SelectMinElement(Float4 f)
     const Float4 min2 = Min(min1, PermuteFloats<2, 2, 0, 0>(min1));
     return min2;
 }
+
+inline Float4 SelectMaxElement(Float4 f)
+{
+	const Float4 max1 = Max(f, PermuteFloats<1, 0, 3, 2>(f));
+	const Float4 max2 = Max(max1, PermuteFloats<2, 2, 0, 0>(max1));
+	return max2;
+}
