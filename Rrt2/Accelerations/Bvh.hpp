@@ -40,7 +40,8 @@ struct NodeRef
         // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
     }
 
-	std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const;
+    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                 float tMax) const;
 
     const InteriorNode* GetInteriorNode() const
     {
@@ -48,11 +49,11 @@ struct NodeRef
         return reinterpret_cast<const InteriorNode*>(GetPtr());
     }
 
-	const Leaf* GetLeaf() const
-	{
-		assert(GetKind() == kLeaf);
-		return reinterpret_cast<const Leaf*>(GetPtr());
-	}
+    const Leaf* GetLeaf() const
+    {
+        assert(GetKind() == kLeaf);
+        return reinterpret_cast<const Leaf*>(GetPtr());
+    }
 
     gsl::span<const SimdTriangle> GetLeafPrimitives() const;
 
@@ -67,14 +68,16 @@ struct alignas(16) InteriorNode
     SimdBoundingBox childrenBoxes;
     NodeRef children[4];
 
-	std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const;
+    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                 float tMax) const;
 };
 
 struct alignas(16) Leaf
 {
     AlignedVec<SimdTriangle> primitives;
 
-	std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const;
+    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                 float tMax) const;
 };
 
 class PrimRef;
@@ -85,7 +88,7 @@ struct Bvh : AccelerationBase
     inline static constexpr std::uint32_t kMaxDepth = 16;
 
     Bvh(const Scene* scene);
-	std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
+    std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
     void Build() override;
     // std::optional<HitRecord>
 

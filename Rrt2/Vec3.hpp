@@ -98,7 +98,7 @@ inline Vec3fPacked operator-(const Vec3fPacked& lhs, const Vec3fPacked& rhs)
 
 inline Vec3fPacked operator*(const Vec3fPacked& lhs, const Vec3fPacked& rhs)
 {
-	return Vec3fPacked{ Mul(lhs.x, rhs.x), Mul(lhs.y, rhs.y), Mul(lhs.z, rhs.z) };
+    return Vec3fPacked{Mul(lhs.x, rhs.x), Mul(lhs.y, rhs.y), Mul(lhs.z, rhs.z)};
 }
 
 inline Vec3fPacked Scale(const Vec3fPacked& lhs, const PackedFloats& rhs)
@@ -108,22 +108,22 @@ inline Vec3fPacked Scale(const Vec3fPacked& lhs, const PackedFloats& rhs)
 
 inline Vec3fPacked operator-(const Vec3fPacked& lhs)
 {
-	return Vec3fPacked{ Neg(lhs.x), Neg(lhs.y), Neg(lhs.z) };
+    return Vec3fPacked{Neg(lhs.x), Neg(lhs.y), Neg(lhs.z)};
 }
 
 inline Vec3fPacked Rcp(const Vec3fPacked& lhs)
 {
-	return Vec3fPacked{ Rcp(lhs.x), Rcp(lhs.y), Rcp(lhs.z) };
+    return Vec3fPacked{Rcp(lhs.x), Rcp(lhs.y), Rcp(lhs.z)};
 }
 
 inline PackedFloats SelectMaxElement(const Vec3fPacked& vec)
 {
-	return Max(vec.x, Max(vec.y, vec.z));
+    return Max(vec.x, Max(vec.y, vec.z));
 }
 
 inline PackedFloats SelectMinElement(const Vec3fPacked& vec)
 {
-	return Min(vec.x, Min(vec.y, vec.z));
+    return Min(vec.x, Min(vec.y, vec.z));
 }
 
 #undef EXTERN_VEC

@@ -21,17 +21,17 @@ TEST_CASE("SimdBoundingBox intersection", "[SimdBoundingBox]")
             {MakeFloats(-2.0f, -2.0f, -2.0f, 1.0f), MakeFloats(0.0f, 0.0f, 0.0f, 1.0f)},
         }};
 
-	SimdBoundingBox simd;
+    SimdBoundingBox simd;
     int i = 0;
     for (const BoundingBox& box : boxes)
     {
         simd.Set(i, box);
         ++i;
     }
-	Ray ray;
-	ray.origin = MakeFloats(-1.0f, -1.0f, 1.0f, 0.0f);
-	ray.speed = MakeFloats(0.0f, 0.0f, -1.0f, 0.0f);
-	PackedRay packed{ ray };
-	const int mask = simd.Hit(packed, 0.0f, 10.0f);
-	CHECK(mask == 8);
+    Ray ray;
+    ray.origin = MakeFloats(-1.0f, -1.0f, 1.0f, 0.0f);
+    ray.speed = MakeFloats(0.0f, 0.0f, -1.0f, 0.0f);
+    PackedRay packed{ray};
+    const int mask = simd.Hit(packed, 0.0f, 10.0f);
+    CHECK(mask == 8);
 }

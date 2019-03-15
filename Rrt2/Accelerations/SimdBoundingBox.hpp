@@ -11,9 +11,9 @@ class SimdBoundingBox
     Vec3fPacked lower;
     Vec3fPacked upper;
 
-	std::uint32_t Hit(const PackedRay& ray, float tMin, float tMax) const;
+    std::uint32_t Hit(const PackedRay& ray, float tMin, float tMax) const;
     void Set(std::uint32_t i, const BoundingBox& bbox);
 
-private:
-	const Vec3fPacked& Get(std::size_t n) const;
+  private:
+    const Vec3fPacked& Get(std::size_t n) const;
 };

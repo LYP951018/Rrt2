@@ -30,5 +30,6 @@ class alignas(16) SimdTriangle
              std::uint32_t geomId);
     void Fill(const PrimRef* prims, std::uint32_t& start, std::uint32_t end, const Scene* scene);
 
-    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const;
+    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                 float tMax) const;
 };

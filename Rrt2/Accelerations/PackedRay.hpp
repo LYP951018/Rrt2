@@ -6,11 +6,11 @@ class Ray;
 
 class alignas(16) PackedRay
 {
-public:
-	Vec3fPacked origin;
-	Vec3fPacked speed;
-	Vec3T<std::uint32_t> negSpeed;
-	Vec3fPacked invSpeed;
+  public:
+    Vec3fPacked origin;
+    Vec3fPacked speed;
+    Vec3T<std::uint32_t> negSpeed;
+    Vec3fPacked invSpeed;
 
-	PackedRay(const Ray& ray);
+    PackedRay(const Ray& ray);
 };

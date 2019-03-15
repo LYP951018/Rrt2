@@ -39,7 +39,8 @@ void SimdTriangle::Fill(const PrimRef* prims, std::uint32_t& start, std::uint32_
     }
 }
 
-std::optional<HitRecord> SimdTriangle::Hit(const PackedRay& packedRay, const Ray& ray, float tMin, float tMax) const
+std::optional<HitRecord> SimdTriangle::Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                           float tMax) const
 {
     const Vec3fPacked pVec = Cross3(packedRay.speed, e2);
     // FIXME: det == 0
@@ -76,7 +77,7 @@ std::optional<HitRecord> SimdTriangle::Hit(const PackedRay& packedRay, const Ray
     HitRecord record;
     record.geomId = geomId;
     record.primId = primId;
-	record.t = First(minT);
+    record.t = First(minT);
     Store(Add(ray.origin, Mul(ray.speed, minT)), &record.position.x);
     return record;
 }
