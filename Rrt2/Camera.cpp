@@ -14,25 +14,23 @@ class alignas(16) CameraData
     XMVECTOR center;
 };
 
-Camera::Camera(std::uint32_t filmWidth, std::uint32_t filmHeight, float radius, float distance,
-               const Vec3f& center)
+Camera::Camera(std::uint32_t filmWidth, std::uint32_t filmHeight, float radius, float distance)
     : m_filmWidth{filmWidth}, m_filmHeight{filmHeight}, m_radius{radius},
       m_distance{distance}, m_data{std::make_unique<CameraData>()}
-{
-
-    m_data->center = LoadFloat3(&center.x);
-}
+{}
 
 void Camera::SetLookAt(const Vec3f& eye, const Vec3f& focus, const Vec3f& up)
 {
     const XMVECTOR eyeVec = LoadFloat3(eye);
     const XMVECTOR focusVec = LoadFloat3(focus);
     const XMVECTOR upVec = LoadFloat3(up);
+    m_data->center = LoadFloat3(&eye.x);
     m_data->wAxis = XMVector3Normalize(focusVec - eyeVec);
     XMVECTOR u = XMVector3Cross(upVec, m_data->wAxis);
     m_data->uAxis = XMVector3Normalize(u);
     m_data->vAxis = XMVector3Cross(m_data->wAxis, u);
-    m_data->filmLeftBottomCorner = m_data->center - XMVectorSet(0.5f, 0.5f, m_distance, 0.0f);
+    m_data->filmLeftBottomCorner =
+        m_data->center - 0.5f * m_data->uAxis - 0.5f * m_data->vAxis - m_distance * m_data->wAxis;
     // m_data->
 }
 
@@ -78,6 +76,8 @@ void Camera::GenerateRays(pcg32_random_t& state, AlignedVec<Ray>& rays,
         }
     }
 }
+
+Camera::~Camera() {}
 
 // void Camera::GetRay(const Vec2fPacked& pixelPos, const Vec2fPacked& thinLensPos, SimdRay& ray)
 //{

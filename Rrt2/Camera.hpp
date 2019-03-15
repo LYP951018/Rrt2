@@ -13,13 +13,13 @@ class CameraData;
 class Camera
 {
   public:
-    Camera(std::uint32_t filmWidth, std::uint32_t filmHeight, float radius, float distance,
-           const Vec3f& center);
+    Camera(std::uint32_t filmWidth, std::uint32_t filmHeight, float radius, float distance);
 
     void SetLookAt(const Vec3f& eye, const Vec3f& focus, const Vec3f& up);
     // void GetRay(const Vec2fPacked& pixelPos, const Vec2fPacked& thinLensPos, SimdRay& ray);
     void GetRay(const Vec2f& pixelPos, const Vec2f& thinLensPos, Ray& ray);
     void GenerateRays(pcg32_random_t& state, AlignedVec<Ray>& rays, std::uint32_t samplesPerPixel);
+    ~Camera();
 
   private:
     std::uint32_t m_filmWidth, m_filmHeight;
