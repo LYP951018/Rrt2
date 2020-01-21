@@ -373,3 +373,5 @@ healthchecksdb
 *.exe
 *.out
 *.app
+
+Build/
