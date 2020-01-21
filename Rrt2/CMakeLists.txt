@@ -11,5 +11,5 @@ target_compile_features(Rrt2 PUBLIC cxx_std_20)
 target_link_libraries(Rrt2 PUBLIC pcg-c)
 
 if (MSVC)
-    target_compile_options(Rrt2 PRIVATE /utf-8 /permissive-)
+    target_compile_options(Rrt2 PUBLIC /utf-8 /permissive-)
 endif()
