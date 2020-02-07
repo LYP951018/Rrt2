@@ -3,26 +3,46 @@
 #include <pcg_variants.h>
 #include <cstdint>
 #include <memory>
+#include <glm/matrix.hpp>
 #include "Vec3.hpp"
-#include "AlignedVec.hpp"
+#include <vector>
 
-class Ray;
-class SimdRay;
-class CameraData;
-
-class Camera
+namespace rrt
 {
-  public:
-    Camera(const XMMATRIX& cameraToWorld, const XMMATRIX& cameraToScreen,  float distance);
+    class Ray;
 
-    void SetLookAt(const Vec3f& eye, const Vec3f& focus, const Vec3f& up);
-    // void GetRay(const Vec2fPacked& pixelPos, const Vec2fPacked& thinLensPos, SimdRay& ray);
-    void GetRay(const Vec2f& pixelPos, Ray& ray);
-    void GenerateRays(pcg32_random_t& state, AlignedVec<Ray>& rays, std::uint32_t samplesPerPixel);
-    ~Camera();
+    struct PerspectiveParam
+    {
+        float near, far;
+        float fov;
+    };
 
-  private:
-    std::uint32_t m_filmWidth, m_filmHeight;
-    float m_distance;
-    std::unique_ptr<CameraData> m_data;
-};
+    struct FilmSize
+    {
+        std::uint32_t width, height;
+
+        float GetAspectRatio() const
+        {
+            return static_cast<float>(height) / static_cast<float>(width);
+        }
+    };
+
+    class Camera
+    {
+      public:
+        Camera(const PerspectiveParam& perspectiveParam,
+               const glm::mat4& worldToCamera, const FilmSize& filmSize);
+
+        // void GetRay(const Vec2fPacked& pixelPos, const Vec2fPacked&
+        // thinLensPos, SimdRay& ray);
+        void GetRay(const glm::vec2& pixelPos, Ray& ray);
+        void GenerateRays(pcg32_random_t& state, std::vector<Ray>& rays,
+                          std::uint32_t samplesPerPixel);
+      private:
+        FilmSize m_filmSize;
+        glm::mat4 m_cameraToWorld, m_worldToCamera, m_screenToRaster,
+            m_cameraToScreen, m_screenToCamera;
+        glm::mat4 m_rasterToWorld;
+        glm::vec3 m_rayOrigin;
+    };
+} // namespace rrt

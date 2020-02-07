@@ -1,14 +1,17 @@
 ﻿#pragma once
 
 #include <optional>
-#include "../HitRecord.hpp"
+#include "HitRecord.hpp"
 
-class Ray;
-
-class AccelerationBase
+namespace rrt
 {
-  public:
-    virtual std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) = 0;
-    virtual ~AccelerationBase();
-    virtual void Build() = 0;
-};
+    class Ray;
+
+    class AccelerationBase
+    {
+      public:
+        virtual std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) = 0;
+        virtual ~AccelerationBase();
+        virtual void Build() = 0;
+    };
+}

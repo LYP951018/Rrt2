@@ -1,11 +1,13 @@
-﻿#include <catch.hpp>
+﻿#include <catch2/catch.hpp>
 #include "TestHelpers.hpp"
-#include <Rrt2/Accelerations/SimdTriangle.hpp>
-#include <Rrt2/Accelerations/PackedRay.hpp>
+#include <Accelerations/PackedTriangle.hpp>
+#include <Accelerations/PackedRay.hpp>
 #include <Rrt2/Geometries/TriangleMesh.hpp>
 #include <Rrt2/Ray.hpp>
 
-TEST_CASE("Triangle intersection", "[SimdTriangle]")
+using namespace rrt;
+
+TEST_CASE("Triangle intersection", "[PackedTriangle]")
 {
     SingleTriangle triangles[4] = {SingleTriangle{Vec3f{0.0f, 0.0f, 0.0f}, Vec3f{1.0f, 0.0f, 0.0f},
                                                   Vec3f{0.5f, 0.866025f, 0.612372f}},
@@ -15,16 +17,16 @@ TEST_CASE("Triangle intersection", "[SimdTriangle]")
                                                   Vec3f{0.5f, -0.866025f, 0.612372f}},
                                    SingleTriangle{Vec3f{0.0f, 0.0f, 0.0f}, Vec3f{-1.0f, 0.0f, 0.0f},
                                                   Vec3f{-0.5f, -0.866025f, 0.612372f}}};
-    SimdTriangle simd;
+    PackedTriangleStorage simd;
     for (std::uint32_t i = 0; i < 4; ++i)
     {
         simd.Set(i, triangles[i], i, 0);
     }
     Ray ray;
-    ray.origin = MakeFloats(-0.5f, 0.5f, 0.5f, 0.0f);
-    ray.speed = MakeFloats(0.0f, 0.0f, -1.0f, 0.0f);
+    ray.origin = glm::vec3(-0.5f, 0.5f, 0.5f);
+    ray.speed = glm::vec3(0.0f, 0.0f, -1.0f);
     PackedRay packed{ray};
-    const std::optional<HitRecord> record = simd.Hit(packed, ray, 0.0f, 1.0f);
+    const std::optional<HitRecord> record = simd.Load().Hit(packed, ray, 0.0f, 1.0f);
     CHECK(record.has_value());
     const HitRecord& rec = record.value();
     CHECK(rec.primId == 1);

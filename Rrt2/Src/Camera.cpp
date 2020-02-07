@@ -1,83 +1,71 @@
 #include "Camera.hpp"
 #include "Sampling.hpp"
-#include <DirectXMath.h>
-#include "DxMathHelpers.hpp"
 #include "Ray.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
-using namespace DirectX;
-
-class alignas(16) CameraData
+namespace rrt
 {
-  public:
-      XMMATRIX cameraToWorld;
-      XMMATRIX screenToRaster;
-      XMMATRIX cameraToScreen;
-};
-
-Camera::Camera(std::uint32_t filmWidth, std::uint32_t filmHeight, float fov)
-    : m_filmWidth{filmWidth}, m_filmHeight{filmHeight},
-      m_distance{distance}, m_data{std::make_unique<CameraData>()}
-{}
-
-void Camera::SetLookAt(const Vec3f& eye, const Vec3f& focus, const Vec3f& up)
-{
-    const XMVECTOR eyeVec = LoadFloat3(eye);
-    const XMVECTOR focusVec = LoadFloat3(focus);
-    const XMVECTOR upVec = LoadFloat3(up);
-    m_data->center = LoadFloat3(&eye.x);
-    m_data->wAxis = XMVector3Normalize(focusVec - eyeVec);
-    XMVECTOR u = XMVector3Cross(upVec, m_data->wAxis);
-    m_data->uAxis = XMVector3Normalize(u);
-    m_data->vAxis = XMVector3Cross(m_data->wAxis, u);
-    m_data->filmLeftBottomCorner =
-        m_data->center - 0.5f * m_data->uAxis - 0.5f * m_data->vAxis - m_distance * m_data->wAxis;
-    // m_data->
-}
-
-void Camera::GetRay(const Vec2f& pixelPos, Ray& ray)
-{
-    ray.origin = m_data->center;
-    const XMVECTOR target =
-        m_data->filmLeftBottomCorner + pixelPos.x * m_data->uAxis + pixelPos.y * m_data->vAxis;
-    ray.speed = XMVector3Normalize(target - ray.origin);
-}
-
-void Camera::GenerateRays(pcg32_random_t& state, AlignedVec<Ray>& rays,
-                          std::uint32_t samplesPerPixel)
-{
-    const std::uint32_t filmWidth = m_filmWidth;
-    const std::uint32_t filmHeight = m_filmHeight;
-    const std::uint32_t samplesCount = filmWidth * filmHeight * samplesPerPixel;
-    rays.reserve(samplesCount);
-    std::vector<Vec2f> pixelPoses(samplesPerPixel);
-    std::uint32_t samplesPerPixelWidth = static_cast<std::uint32_t>(std::sqrt(samplesPerPixel));
-    for (std::uint32_t w = 0; w < filmWidth; ++w)
+    Camera::Camera(const PerspectiveParam& perspectiveParam,
+                   const glm::mat4& worldToCamera, const FilmSize& filmSize)
+        : m_worldToCamera{worldToCamera}, m_filmSize{filmSize}
     {
-        // float wStart = w / static_cast<float>(filmWidth);
-        for (std::uint32_t h = 0; h < filmHeight; ++h)
+        const float aspectRatio = filmSize.GetAspectRatio();
+        m_cameraToScreen = glm::perspectiveLH<float>(
+            perspectiveParam.fov, aspectRatio, perspectiveParam.near,
+            perspectiveParam.far);
+        m_cameraToWorld = glm::inverse(m_worldToCamera);
+        m_screenToCamera = glm::inverse(m_cameraToScreen);
+        m_screenToRaster =
+            glm::translate<float>(glm::vec3(-0.5f, 0.5f, 0.0f)) *
+            glm::scale(glm::vec3(static_cast<float>(filmSize.width),
+                                 -static_cast<float>(filmSize.height), 1.0f));
+        m_rasterToWorld = m_screenToRaster * m_cameraToScreen * m_worldToCamera;
+        m_rayOrigin = (m_cameraToWorld * glm::vec4{glm::vec3{0.0f}, 1.0f});
+    }
+
+    void Camera::GetRay(const glm::vec2& pixelPos, Ray& ray)
+    {
+        ray.origin = m_rayOrigin;
+        const glm::vec4 rasterPos4D = glm::vec4(pixelPos, 0.0f, 1.0f);
+        const glm::vec3 worldSpaceEndPoint =
+            glm::vec3(m_rasterToWorld * rasterPos4D);
+        const glm::vec3 direction =
+            glm::normalize(worldSpaceEndPoint - m_rayOrigin);
+        ray.speed = direction;
+    }
+
+    void Camera::GenerateRays(pcg32_random_t& state, std::vector<Ray>& rays,
+                              std::uint32_t samplesPerPixel)
+    {
+        auto [filmWidth, filmHeight] = m_filmSize;
+        const std::uint32_t samplesCount =
+            filmWidth * filmHeight * samplesPerPixel;
+        const glm::vec2 filmSizeVec2 = glm::vec2(
+            static_cast<float>(filmWidth), static_cast<float>(filmHeight));
+        rays.reserve(samplesCount);
+        std::vector<glm::vec2> pixelPoses(samplesPerPixel);
+        std::uint32_t samplesPerPixelWidth =
+            static_cast<std::uint32_t>(std::sqrt(samplesPerPixel));
+        for (std::uint32_t w = 0; w < filmWidth; ++w)
         {
-            Jitter(state, gsl::make_span(pixelPoses));
-            for (std::uint32_t i = 0; i < samplesPerPixel; ++i)
+            // float wStart = w / static_cast<float>(filmWidth);
+            for (std::uint32_t h = 0; h < filmHeight; ++h)
             {
-                Ray ray;
-                Vec2f& pixelPos = pixelPoses[i];
-                pixelPos.x /= samplesPerPixelWidth;
-                pixelPos.y /= samplesPerPixelWidth;
-                pixelPos.x = (pixelPos.x - 0.5f + w) / static_cast<float>(filmWidth);
-                pixelPos.y = (pixelPos.y - 0.5f + h) / static_cast<float>(filmHeight);
-                GetRay(pixelPos, ray);
-                rays.push_back(ray);
+                Jitter(state, gsl::make_span(pixelPoses));
+                for (std::uint32_t i = 0; i < samplesPerPixel; ++i)
+                {
+                    Ray ray;
+                    glm::vec2& pixelPos = pixelPoses[i];
+                    // 将在同一个像素内的采样归一化
+                    pixelPos /= samplesPerPixelWidth;
+                    const glm::vec2 currentPixBasePos =
+                        glm::vec2(static_cast<float>(w), static_cast<float>(h));
+                    pixelPos = (pixelPos + currentPixBasePos) / filmSizeVec2;
+                    GetRay(pixelPos, ray);
+                    rays.push_back(ray);
+                }
             }
         }
     }
-}
-
-Camera::~Camera() {}
-
-// void Camera::GetRay(const Vec2fPacked& pixelPos, const Vec2fPacked& thinLensPos, SimdRay& ray)
-//{
-//	const PackedFloats half = MakeFloats(0.5f);
-//	const PackedFloats thinLensX = Mul(Sub(thinLensPos.x, half), m_data->uAxis);
-//	const PackedFloats thinLensY = Mul(Sub(thinLensPos.y, half), m_data->vAxis);
-//	const PackedFloats pixelX = Mul(m_data->across,
-//}
+} // namespace rrt

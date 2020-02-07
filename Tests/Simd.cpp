@@ -1,7 +1,9 @@
-﻿#include <Rrt2/Simd.hpp>
+﻿#include <Simd.hpp>
 #include <Rrt2/Vec3.hpp>
 #include "TestHelpers.hpp"
-#include <catch.hpp>
+#include <catch2/catch.hpp>
+
+using namespace rrt;
 
 TEST_CASE("Cross3Packed", "Simd")
 {
@@ -13,9 +15,9 @@ TEST_CASE("Cross3Packed", "Simd")
     //(2, 3, 4) x (2, 3, 4)
     //(3, 4, 5) x (1, 2, 3)
     Vec3fPacked result = Cross3(packed1, packed2);
-    CHECK(result.x == MakeFloats(-2.0f, 0.0f, 2.0f, 0.0f));
-    CHECK(result.y == MakeFloats(4.0f, 0.0f, -4.0f, 0.0f));
-    CHECK(result.z == MakeFloats(-2.0f, 0.0f, 2.0f, 0.0f));
+    CHECK_M128_EQ(result.x, MakeFloats(-2.0f, 0.0f, 2.0f, 0.0f));
+    CHECK_M128_EQ(result.y, MakeFloats(4.0f, 0.0f, -4.0f, 0.0f));
+    CHECK_M128_EQ(result.z, MakeFloats(-2.0f, 0.0f, 2.0f, 0.0f));
 }
 
 TEST_CASE("Dot3", "Simd") {}
@@ -23,5 +25,5 @@ TEST_CASE("Dot3", "Simd") {}
 TEST_CASE("MinElement", "Simd")
 {
     PackedFloats min = SelectMinElement(MakeFloats(4.0f, 2.0f, 3.0f, 3.0f));
-    CHECK(min == MakeFloats(2.0f, 2.0f, 2.0f, 2.0f));
+    CHECK_M128_EQ(min, MakeFloats(2.0f, 2.0f, 2.0f, 2.0f));
 }

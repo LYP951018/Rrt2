@@ -1,15 +1,29 @@
 ﻿#include "PrimRef.hpp"
+#include <glm/vec4.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "StdExtras.hpp"
 
-PrimRef::PrimRef(const BoundingBox& bounds, std::uint32_t geomId, std::uint32_t primId)
+namespace rrt
 {
-    lower = bounds.corners[0];
-    upper = bounds.corners[1];
-    lower.m128_i32[3] = geomId;
-    upper.m128_i32[3] = primId;
-}
+    PrimRefStorage::PrimRefStorage(const BoundingBox& bounds,
+                                   std::uint32_t geomId, std::uint32_t primId)
+    {
+        Store(SelectCombine<0, 0, 0, 1>(bounds.corners[0],
+                                        AsFloats(MakeInts(geomId))),
+              glm::value_ptr(lower));
+        Store(SelectCombine<0, 0, 0, 1>(bounds.corners[1],
+                                        AsFloats(MakeInts(primId))),
+              glm::value_ptr(upper));
+    }
 
-Float4 PrimRef::GetCenter() const { return Div(Add(lower, upper), MakeFloats(2.0f)); }
+    Float4 LoadedPrimRef::GetCenter() const
+    {
+        return Div(Add(lower, upper), MakeFloats(2.0f));
+    }
 
-std::uint32_t PrimRef::GetPrimId() const { return bit_cast<std::uint32_t>(Fourth(upper)); }
+    // std::uint32_t PrimRefStorage::GetPrimId() const { return
+    // bit_cast<std::uint32_t>(Fourth(upper)); }
 
-std::uint32_t PrimRef::GetGeomId() const { return bit_cast<std::uint32_t>(Fourth(lower)); }
+    // std::uint32_t PrimRefStorage::GetGeomId() const { return
+    // bit_cast<std::uint32_t>(Fourth(lower)); }
+} // namespace rrt

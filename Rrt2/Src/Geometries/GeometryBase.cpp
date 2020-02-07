@@ -1,3 +1,7 @@
-#include "GeometryBase.hpp"
+#include "Geometries/GeometryBase.hpp"
 
-GeometryBase::~GeometryBase() {}
+namespace rrt
+{
+    GeometryBase::~GeometryBase() {}
+}
+

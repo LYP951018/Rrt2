@@ -6,6 +6,9 @@
     template class type<Floats<8>>; \
     template class type<float>;
 
-DEF_VEC(Vec2T)
+namespace rrt
+{
+    DEF_VEC(Vec2T)
 
-DEF_VEC(Vec3T)
+    DEF_VEC(Vec3T)
+} // namespace rrt

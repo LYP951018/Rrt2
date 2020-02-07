@@ -1,7 +1,9 @@
-﻿#include <catch.hpp>
-#include <Rrt2/Accelerations/Bvh.hpp>
+﻿#include <catch2/catch.hpp>
+#include <Accelerations/Bvh.hpp>
 #include <Rrt2/Geometries/TriangleMesh.hpp>
 #include <Rrt2/Scene.hpp>
+
+using namespace rrt;
 
 TEST_CASE("Bvh construction", "[Bvh]")
 {

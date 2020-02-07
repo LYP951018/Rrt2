@@ -1,6 +1,9 @@
 #pragma once
 
-class Material
+namespace rrt
 {
-    virtual ~Material();
-};
+    class Material
+    {
+        virtual ~Material();
+    };
+}
