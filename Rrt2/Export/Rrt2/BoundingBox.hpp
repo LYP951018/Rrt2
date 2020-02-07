@@ -2,27 +2,35 @@
 
 #include <cstddef>
 #include "Helpers.hpp"
-#include "Vec3.hpp"
+#include "Simd.hpp"
+#include <glm/vec4.hpp>
 
-class Ray;
-
-class BoundingBox
+namespace rrt
 {
-  public:
-    Float4 corners[2];
+    class Ray;
 
-    /* const Vec3f& GetMin() const { return corners[kMinIndex]; }
-     const Vec3f& GetMax() const { return corners[kMaxIndex]; }*/
-    // const Vec3f& GetCentroid() const;
-    // static DirectX::XMVECTOR GetCentroidSimd(DirectX::XMVECTOR minVert, DirectX::XMVECTOR
-    // maxVert);
-
-    bool Hit(const Ray& ray, float tMin, float tMax) const;
-
-  private:
-    enum : std::size_t
+    class alignas(kSimdAlignment) BoundingBoxStorage
     {
-        kMinIndex,
-        kMaxIndex
+      public:
+        glm::vec4 corners[2];
     };
-};
+
+    class alignas(kSimdAlignment) BoundingBox
+    {
+      public:
+        Float4 corners[2];
+
+        Float4 GetCenter() const
+        {
+            return Mul(Add(corners[0], corners[1]), MakeFloats(0.5f));
+        }
+
+
+      private:
+        enum : std::size_t
+        {
+            kMinIndex,
+            kMaxIndex
+        };
+    };
+}

@@ -1,101 +1,105 @@
 ﻿#pragma once
 
 #include "AccelerationBase.hpp"
-#include "../BoundingBox.hpp"
-#include "SimdTriangle.hpp"
-#include "SimdBoundingBox.hpp"
-#include "../AlignedVec.hpp"
+#include "BoundingBox.hpp"
+#include "PackedTriangle.hpp"
+#include "PackedBoundingBox.hpp"
+#include "AlignedVec.hpp"
 #include <gsl/span>
 
-class GeometryBase;
-
-struct InteriorNode;
-struct Leaf;
-class PackedRay;
-class Ray;
-
-struct NodeRef
+namespace rrt
 {
-  public:
-    enum Kind
+    class GeometryBase;
+
+    struct InteriorNodeStorage;
+    struct Leaf;
+    class PackedRay;
+    class Ray;
+
+    struct NodeRef
     {
-        kNode = 0,
-        kLeaf
+      public:
+        enum Kind
+        {
+            kNode = 0,
+            kLeaf
+        };
+
+      private:
+        std::uintptr_t m_nodeRef;
+
+        inline static constexpr std::uintptr_t kMask = 1;
+        inline static constexpr std::uintptr_t kUnmask = ~kMask;
+
+      public:
+        NodeRef(const Leaf* leaf);
+        NodeRef(const InteriorNodeStorage* node);
+        NodeRef();
+
+        Kind GetKind() const
+        {
+            return (m_nodeRef & kMask) == 0 ? kLeaf : kNode;
+            // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
+        }
+
+        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                     float tMax) const;
+
+        const InteriorNodeStorage* GetInteriorNode() const
+        {
+            assert(GetKind() == kNode);
+            return reinterpret_cast<const InteriorNodeStorage*>(GetPtr());
+        }
+
+        const Leaf* GetLeaf() const
+        {
+            assert(GetKind() == kLeaf);
+            return reinterpret_cast<const Leaf*>(GetPtr());
+        }
+
+        gsl::span<const PackedTriangleStorage> GetLeafPrimitives() const;
+
+        const std::byte* GetPtr() const
+        {
+            return reinterpret_cast<const std::byte*>(m_nodeRef & kUnmask);
+        }
     };
 
-  private:
-    std::uintptr_t m_nodeRef;
-
-    inline static constexpr std::uintptr_t kMask = 1;
-    inline static constexpr std::uintptr_t kUnmask = ~kMask;
-
-  public:
-    NodeRef(const Leaf* leaf);
-    NodeRef(const InteriorNode* node);
-    NodeRef();
-
-    Kind GetKind() const
+    struct alignas(16) InteriorNodeStorage
     {
-        return (m_nodeRef & kMask) == 0 ? kLeaf : kNode;
-        // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
-    }
+        PackedBoundingBoxStorage childrenBoxes;
+        NodeRef children[4];
 
-    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
-                                 float tMax) const;
+        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                     float tMax) const;
+    };
 
-    const InteriorNode* GetInteriorNode() const
+    struct alignas(16) Leaf
     {
-        assert(GetKind() == kNode);
-        return reinterpret_cast<const InteriorNode*>(GetPtr());
-    }
+        AlignedVec<PackedTriangleStorage> primitives;
 
-    const Leaf* GetLeaf() const
+        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+                                     float tMax) const;
+    };
+
+    class PrimRefStorage;
+
+    struct Bvh : AccelerationBase
     {
-        assert(GetKind() == kLeaf);
-        return reinterpret_cast<const Leaf*>(GetPtr());
-    }
+      public:
+        inline static constexpr std::uint32_t kMaxDepth = 16;
 
-    gsl::span<const SimdTriangle> GetLeafPrimitives() const;
+        Bvh(const Scene* scene);
+        std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
+        void Build() override;
+        // std::optional<HitRecord>
 
-    const std::byte* GetPtr() const
-    {
-        return reinterpret_cast<const std::byte*>(m_nodeRef & kUnmask);
-    }
-};
+      private:
+        NodeRef Build(gsl::span<PrimRefStorage> prims, BoundingBoxStorage& boundingBoxStorage);
 
-struct alignas(16) InteriorNode
-{
-    SimdBoundingBox childrenBoxes;
-    NodeRef children[4];
+        const Scene* m_scene;
+        NodeRef m_root;
+        BoundingBoxStorage m_rootBox;
+    };
+}
 
-    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
-                                 float tMax) const;
-};
-
-struct alignas(16) Leaf
-{
-    AlignedVec<SimdTriangle> primitives;
-
-    std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
-                                 float tMax) const;
-};
-
-class PrimRef;
-
-struct Bvh : AccelerationBase
-{
-  public:
-    inline static constexpr std::uint32_t kMaxDepth = 16;
-
-    Bvh(const Scene* scene);
-    std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
-    void Build() override;
-    // std::optional<HitRecord>
-
-  private:
-    NodeRef Build(gsl::span<PrimRef> prims, BoundingBox& boundingBox);
-
-    const Scene* m_scene;
-    NodeRef m_root;
-    BoundingBox m_rootBox;
-};

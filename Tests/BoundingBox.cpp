@@ -1,37 +1,40 @@
-﻿#include <catch.hpp>
+﻿#include <catch2/catch.hpp>
 #include "TestHelpers.hpp"
-#include <Rrt2/Accelerations/SimdBoundingBox.hpp>
-#include <Rrt2/Accelerations/PackedRay.hpp>
+#include <Rrt2/BoundingBox.hpp>
+#include <Accelerations/PackedRay.hpp>
+#include <Accelerations/PackedBoundingBox.hpp>
 #include <Rrt2/BoundingBox.hpp>
 #include <Rrt2/Ray.hpp>
 
-TEST_CASE("SimdBoundingBox intersection", "[SimdBoundingBox]")
+using namespace rrt;
+
+TEST_CASE("PackedBoundingBox intersection", "[PackedBoundingBox]")
 {
-    BoundingBox boxes[4] = {
-        BoundingBox{
-            {MakeFloats(1.0f, 1.0f, 1.0f, 1.0f), MakeFloats(2.0f, 3.0f, 4.0f, 1.0f)},
+    BoundingBoxStorage boxes[4] = {
+        BoundingBoxStorage {
+            .corners = {glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}, glm::vec4{2.0f, 3.0f, 4.0f, 1.0f}},
         },
-        BoundingBox{
-            {MakeFloats(2.0f, 3.0f, 4.0f, 1.0f), MakeFloats(6.0f, 9.0f, 12.0f, 1.0f)},
+        BoundingBoxStorage{
+            .corners = {glm::vec4{2.0f, 3.0f, 4.0f, 1.0f}, glm::vec4{6.0f, 9.0f, 12.0f, 1.0f}},
         },
-        BoundingBox{
-            {MakeFloats(12.0f, 18.0f, 10.0f, 1.0f), MakeFloats(22.0f, 28.0f, 20.0f, 1.0f)},
+        BoundingBoxStorage{
+            .corners = {glm::vec4{12.0f, 18.0f, 10.0f, 1.0f}, glm::vec4{22.0f, 28.0f, 20.0f, 1.0f}},
         },
-        BoundingBox{
-            {MakeFloats(-2.0f, -2.0f, -2.0f, 1.0f), MakeFloats(0.0f, 0.0f, 0.0f, 1.0f)},
+        BoundingBoxStorage{
+            .corners = {glm::vec4{-2.0f, -2.0f, -2.0f, 1.0f}, glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}},
         }};
 
-    SimdBoundingBox simd;
+    PackedBoundingBoxStorage simd;
     int i = 0;
-    for (const BoundingBox& box : boxes)
+    for (const BoundingBoxStorage& box : boxes)
     {
         simd.Set(i, box);
         ++i;
     }
     Ray ray;
-    ray.origin = MakeFloats(-1.0f, -1.0f, 1.0f, 0.0f);
-    ray.speed = MakeFloats(0.0f, 0.0f, -1.0f, 0.0f);
+    ray.origin = glm::vec4(-1.0f, -1.0f, 1.0f, 0.0f);
+    ray.speed = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     PackedRay packed{ray};
-    const int mask = simd.Hit(packed, 0.0f, 10.0f);
+    const int mask = simd.Load().Hit(packed, 0.0f, 10.0f);
     CHECK(mask == 8);
 }

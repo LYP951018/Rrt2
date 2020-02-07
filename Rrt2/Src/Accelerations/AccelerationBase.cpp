@@ -1,3 +1,6 @@
 #include "AccelerationBase.hpp"
 
-AccelerationBase::~AccelerationBase() {}
+namespace rrt
+{
+    AccelerationBase::~AccelerationBase() {}
+}

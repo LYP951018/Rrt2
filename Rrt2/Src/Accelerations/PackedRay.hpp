@@ -1,16 +1,19 @@
 ﻿#pragma once
 
-#include "../Vec3.hpp"
+#include "Vec3.hpp"
 
-class Ray;
-
-class alignas(16) PackedRay
+namespace rrt
 {
-  public:
-    Vec3fPacked origin;
-    Vec3fPacked speed;
-    Vec3T<std::uint32_t> negSpeed;
-    Vec3fPacked invSpeed;
+    class Ray;
 
-    PackedRay(const Ray& ray);
-};
+    class alignas(16) PackedRay
+    {
+      public:
+        Vec3fPacked origin;
+        Vec3fPacked speed;
+        Vec3T<std::uint32_t> negSpeed;
+        Vec3fPacked invSpeed;
+
+        PackedRay(const Ray& ray);
+    };
+}

@@ -4,26 +4,29 @@
 #include <cstddef>
 #include <gsl/span>
 
-struct StreamInfo
+namespace rrt
 {
-    std::uint32_t stride;
-};
-
-class Mesh
-{
-  public:
-    template<typename T>
-    gsl::span<T> GetStreamAs(std::size_t index) const
+    struct StreamInfo
     {
-        const std::vector<std::byte>& channel = m_channels[index];
-        return gsl::make_span(reinterpret_cast<const T*>(channel.data()),
-                              channel.size() / sizeof(T));
-    }
+        std::uint32_t stride;
+    };
 
-    gsl::span<const Vec3f> GetPositions() const { return GetStreamAs<const Vec3f>(0); }
+    class Mesh
+    {
+      public:
+        template<typename T>
+        gsl::span<T> GetStreamAs(std::size_t index) const
+        {
+            const std::vector<std::byte>& channel = m_channels[index];
+            return gsl::make_span(reinterpret_cast<const T*>(channel.data()),
+                                  channel.size() / sizeof(T));
+        }
 
-  private:
-    std::vector<std::vector<std::byte>> m_channels;
-    std::vector<StreamInfo> m_streamInfos;
-    std::vector<std::uint16_t> m_indices;
-};
+        gsl::span<const Vec3f> GetPositions() const { return GetStreamAs<const Vec3f>(0); }
+
+      private:
+        std::vector<std::vector<std::byte>> m_channels;
+        std::vector<StreamInfo> m_streamInfos;
+        std::vector<std::uint16_t> m_indices;
+    };
+}

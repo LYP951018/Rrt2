@@ -1,15 +1,20 @@
 ﻿#include <Rrt2/Scene.hpp>
 #include <Rrt2/Camera.hpp>
 #include <pcg_variants.h>
+#include <numbers>
 #include <ctime>
 
 
 int main()
 {
     const std::unique_ptr<Scene> mainScene = std::make_unique<Scene>();
-    Camera mainCamera{50, 50, 0.035};
-    mainCamera.SetLookAt({278.0f, 273.0f, -800.0f}, {278.0f, 273.0f, -799.0f},
-                         {0.0f, 1.0f, 0.0f});
+    Camera mainCamera{
+        PerspectiveParam {
+            .near = 1.0f,
+            .far = 1000.0f,
+            .fov =
+        }
+    };
     pcg32_random_t randState;
     pcg32_srandom_r(&randState, std::time(0), (intptr_t)&randState);
     AlignedVec<Ray> rays;
