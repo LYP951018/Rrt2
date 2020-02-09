@@ -20,6 +20,7 @@ TEST_CASE("Generate single ray", "Camera")
     Ray ray;
     camera.GetRay(glm::vec2{30, 30}, ray);
     CHECK(AlmostEqualAbsolute(ray.origin, glm::vec3(0.0f)));
+    CHECK(AlmostEqualAbsolute(ray.speed, glm::vec3(0.0f, 0.0f, 1.0f)));
 }
 
 // TEST_CASE("Generate rays", "Camera")
