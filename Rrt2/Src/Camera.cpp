@@ -17,10 +17,10 @@ namespace rrt
         m_cameraToWorld = glm::inverse(m_worldToCamera);
         m_screenToCamera = glm::inverse(m_cameraToScreen);
         m_screenToRaster =
-            glm::translate<float>(glm::vec3(-0.5f, 0.5f, 0.0f)) *
             glm::scale(glm::vec3(static_cast<float>(filmSize.width),
-                                 -static_cast<float>(filmSize.height), 1.0f));
-        m_rasterToWorld = m_screenToRaster * m_cameraToScreen * m_worldToCamera;
+                                 -static_cast<float>(filmSize.height), 1.0f)) *
+            glm::translate<float>(glm::vec3(0.5f, -0.5f, 0.0f));
+        m_rasterToWorld = glm::inverse(m_screenToRaster * m_cameraToScreen * m_worldToCamera);
         m_rayOrigin = (m_cameraToWorld * glm::vec4{glm::vec3{0.0f}, 1.0f});
     }
 
