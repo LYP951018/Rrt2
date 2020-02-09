@@ -49,7 +49,6 @@ namespace rrt
             static_cast<std::uint32_t>(std::sqrt(samplesPerPixel));
         for (std::uint32_t w = 0; w < filmWidth; ++w)
         {
-            // float wStart = w / static_cast<float>(filmWidth);
             for (std::uint32_t h = 0; h < filmHeight; ++h)
             {
                 Jitter(state, gsl::make_span(pixelPoses));
@@ -57,11 +56,8 @@ namespace rrt
                 {
                     Ray ray;
                     glm::vec2& pixelPos = pixelPoses[i];
-                    // 将在同一个像素内的采样归一化
-                    pixelPos /= samplesPerPixelWidth;
-                    const glm::vec2 currentPixBasePos =
+                    pixelPos +=
                         glm::vec2(static_cast<float>(w), static_cast<float>(h));
-                    pixelPos = (pixelPos + currentPixBasePos) / filmSizeVec2;
                     GetRay(pixelPos, ray);
                     rays.push_back(ray);
                 }
