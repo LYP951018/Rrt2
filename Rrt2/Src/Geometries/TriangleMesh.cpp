@@ -1,17 +1,24 @@
-﻿#include "Geometries/TriangleMesh.hpp"
-#include "PrimRef.hpp"
+﻿#include "Rrt2/Geometries/TriangleMesh.hpp"
+#include "Rrt2/PrimRef.hpp"
 
 namespace rrt
 {
-    TriangleMesh::TriangleMesh(std::vector<Vec3f> positions, std::vector<TriangleIndices> indices)
+    TriangleMesh::TriangleMesh(std::vector<Vec3f> positions,
+                               std::vector<TriangleIndices> indices)
         : m_positions{std::move(positions)}, m_indices{std::move(indices)}
-    {}
+    {
+        // FillPrimitiveArray 会一次读四个，position 只有仨。
+        // TODO: 要不要这里让每个 position alignas(16)？
+        // struct alignas(16) Vec3f : glm::vec3 {};
+        m_positions.reserve(m_positions.size() + 1);
+    }
 
     SingleTriangle TriangleMesh::GetPrimitiveAt(std::uint32_t id) const
     {
         const TriangleIndices& indices = m_indices[id];
 
-        return SingleTriangle{m_positions[indices.x], m_positions[indices.y], m_positions[indices.z]};
+        return SingleTriangle{m_positions[indices.x], m_positions[indices.y],
+                              m_positions[indices.z]};
     }
 
     void TriangleMesh::FillPrimitiveArray(AlignedVec<PrimRefStorage>& prims) const
@@ -29,4 +36,4 @@ namespace rrt
             ++primId;
         }
     }
-}
+} // namespace rrt
