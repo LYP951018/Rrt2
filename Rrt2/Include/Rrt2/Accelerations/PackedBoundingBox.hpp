@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include <BoundingBox.hpp>
-#include "StorageLoadStore.hpp"
-#include "Vec3.hpp"
+#include "../BoundingBox.hpp"
+#include "../StorageLoadStore.hpp"
+#include "../Vec3.hpp"
 
 namespace rrt
 {

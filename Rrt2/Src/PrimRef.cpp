@@ -1,7 +1,7 @@
-﻿#include "PrimRef.hpp"
+﻿#include "Rrt2/PrimRef.hpp"
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "StdExtras.hpp"
+#include "Rrt2/StdExtras.hpp"
 
 namespace rrt
 {

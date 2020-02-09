@@ -4,6 +4,7 @@
 #include "../BoundingBox.hpp"
 #include "../SharedBuffer.hpp"
 #include <vector>
+#include <gsl/span>
 
 namespace rrt
 {
@@ -24,14 +25,21 @@ namespace rrt
     class TriangleMesh : public GeometryBase
     {
       public:
-        TriangleMesh(std::vector<Vec3f> positions, std::vector<TriangleIndices> indices);
+        static inline constexpr std::size_t kTriangleIndicesStride = 3;
+
+        TriangleMesh(std::vector<Vec3f> positions,
+                     std::vector<TriangleIndices> indices);
         SingleTriangle GetPrimitiveAt(std::uint32_t id) const;
-        std::uint32_t GetPrimitiveCount() const { return static_cast<std::uint32_t>(m_indices.size()); }
-        void FillPrimitiveArray(AlignedVec<PrimRefStorage>& prims) const override;
+        std::uint32_t GetPrimitiveCount() const override
+        {
+            return static_cast<std::uint32_t>(m_indices.size());
+        }
+        void
+        FillPrimitiveArray(AlignedVec<PrimRefStorage>& prims) const override;
 
       private:
         // FIXME: SharedView / span here.
         std::vector<Vec3f> m_positions;
         std::vector<TriangleIndices> m_indices;
     };
-}
+} // namespace rrt

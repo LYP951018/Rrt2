@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "Vec3.hpp"
-#include "HitRecord.hpp"
-#include "StorageLoadStore.hpp"
+#include "../Vec3.hpp"
+#include "../HitRecord.hpp"
+#include "../StorageLoadStore.hpp"
 #include <glm/vec4.hpp>
 #include <optional>
 #include <array>
@@ -13,7 +13,7 @@ namespace rrt
     class Scene;
     class PrimRefStorage;
     class TriangleMesh;
-    class SingleTriangle;
+    struct SingleTriangle;
     class PackedRay;
     class Ray;
 

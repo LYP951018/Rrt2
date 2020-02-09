@@ -3,7 +3,9 @@
 #include "Simd.hpp"
 #include "Helpers.hpp"
 #include "BoundingBox.hpp"
+#include <cstdint>
 #include <glm/vec3.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace rrt
 {
@@ -23,14 +25,18 @@ namespace rrt
         std::uint32_t geomId;
         glm::vec3 upper;
         std::uint32_t primId;
-        PrimRefStorage(const BoundingBox& bounds, std::uint32_t geomId, std::uint32_t primId);
+        PrimRefStorage(const BoundingBox& bounds, std::uint32_t geomId,
+                       std::uint32_t primId);
 
-//        std::uint32_t GetPrimId() const;
-//        std::uint32_t GetGeomId() const;
+        //        std::uint32_t GetPrimId() const;
+        //        std::uint32_t GetGeomId() const;
 
-        inline LoadedPrimRef Load() const {}
-
+        inline LoadedPrimRef Load() const
+        {
+            return LoadedPrimRef{
+                .lower = FloatsFromAlignedMemory(glm::value_ptr(lower)),
+                .upper = FloatsFromAlignedMemory(glm::value_ptr(upper))};
+        }
     };
 
-
-}
+} // namespace rrt

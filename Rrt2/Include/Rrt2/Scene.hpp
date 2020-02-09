@@ -16,9 +16,13 @@ namespace rrt
     {
       public:
         Scene();
-        auto Trace(const Ray& ray, float tMin, float tMax) -> std::optional<HitRecord>;
+        auto Trace(const Ray& ray, float tMin, float tMax)
+            -> std::optional<HitRecord>;
         const GeometryBase* GetGeometryAt(std::uint32_t i) const;
-        const std::vector<std::unique_ptr<GeometryBase>>& GetGeometries() const { return m_geometries; }
+        const std::vector<std::unique_ptr<GeometryBase>>& GetGeometries() const
+        {
+            return m_geometries;
+        }
         void AddTriangleMesh(std::unique_ptr<TriangleMesh> geometry);
         std::uint32_t GetAvailableGeomId() const;
         void Ready();
@@ -28,4 +32,4 @@ namespace rrt
         std::unique_ptr<AccelerationBase> m_acceleration;
         std::vector<std::unique_ptr<GeometryBase>> m_geometries;
     };
-}
+} // namespace rrt

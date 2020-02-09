@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <glm/vec3.hpp>
-#include <Vec3.hpp>
+#include "Vec3.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include "Simd.hpp"
 
@@ -19,8 +19,9 @@ namespace rrt
         }
     };
 
-    struct alignas(kSimdAlignment) Ray
+    class alignas(kSimdAlignment) Ray
     {
+      public:
         glm::vec3 origin;
         float _padding1;
         glm::vec3 speed;

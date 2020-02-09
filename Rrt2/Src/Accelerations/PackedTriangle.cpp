@@ -1,35 +1,31 @@
-﻿#include "PackedTriangle.hpp"
-#include "Geometries/TriangleMesh.hpp"
-#include "Scene.hpp"
-#include "PrimRef.hpp"
-#include "PackedRay.hpp"
-#include "Ray.hpp"
-#include "StorageLoadStore.hpp"
+﻿#include "Rrt2/Accelerations/PackedTriangle.hpp"
+#include "Rrt2/Geometries/TriangleMesh.hpp"
+#include "Rrt2/Scene.hpp"
+#include "Rrt2/PrimRef.hpp"
+#include "Rrt2/Accelerations/PackedRay.hpp"
+#include "Rrt2/Ray.hpp"
+#include "Rrt2/StorageLoadStore.hpp"
 #include <algorithm>
 #include <bit>
 
 namespace rrt
 {
-    // FIXME
-    Vec3f QuickSub(const Vec3f& lhs, const Vec3f& rhs)
-    {
-        return Vec3f{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
-    }
-
-    void PackedTriangleStorage::Set(std::uint32_t i, const SingleTriangle& triangle,
-                             std::uint32_t primId, std::uint32_t geomId)
+    void PackedTriangleStorage::Set(std::uint32_t i,
+                                    const SingleTriangle& triangle,
+                                    std::uint32_t primId, std::uint32_t geomId)
     {
         primIds[i] = primId;
         geomIds[i] = geomId;
         Store(i, v0, triangle.v0);
-        const Vec3f _e1 = QuickSub(triangle.v1, triangle.v0);
-        const Vec3f _e2 = QuickSub(triangle.v2, triangle.v0);
+        const Vec3f _e1 = triangle.v1 - triangle.v0;
+        const Vec3f _e2 = triangle.v2 - triangle.v0;
         Store(i, e1, _e1);
         Store(i, e2, _e2);
     }
 
-    void PackedTriangleStorage::Fill(const PrimRefStorage* prims, std::uint32_t& start,
-                              std::uint32_t end, const Scene* scene)
+    void PackedTriangleStorage::Fill(const PrimRefStorage* prims,
+                                     std::uint32_t& start, std::uint32_t end,
+                                     const Scene* scene)
     {
         end = std::min(end, start + kMaxSimdWidth);
         for (std::uint32_t i = 0; i < end - start; ++i)
@@ -66,18 +62,25 @@ namespace rrt
         };
         const PackedFloats uvMask = And(inRange(u), inRange(v));
         const PackedFloats filtered = And(uvMask, t);
-        // FIXME: if filtered == 0 return
-        /*if (_mm_testz_si128(filtered, filtered) == 1)
+        if (IsZero(filtered))
         {
-                return std::nullopt;
-        }*/
-
+            return std::nullopt;
+        }
+        // filtered: 0 0 F F
         // get minimal t
+        // INF, INF, t1, t2
+        // 从上面选出最小的 t2
+        // minT: t2 t2 t2 t2
         const Float4 minT =
             SelectMinElement(_mm_blendv_ps(GetInfinity(), t, uvMask));
+        // 下面的步骤为了找出最小的 t 的索引
+        // (t2, t2, t2, t2) == (INF, INF, t1, t2) => (0, 0, 0, T)
         const Float4 maskOutGreater = Equal(minT, filtered);
+        // 0001
         const std::uint8_t mask = Msbs(maskOutGreater);
+        // index = 0
         const int index = std::countr_zero(mask);
+        assert(index != sizeof(mask) * 8);
         const std::uint32_t geomId = geomIds[index];
         const std::uint32_t primId = primIds[index];
         HitRecord record;

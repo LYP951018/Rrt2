@@ -1,4 +1,4 @@
-﻿#include "Vec3.hpp"
+﻿#include <Rrt2/Vec3.hpp>
 #include <ostream>
 
 #define DEF_VEC(type)               \

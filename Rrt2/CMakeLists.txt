@@ -3,14 +3,16 @@ cmake_minimum_required(VERSION 3.15.0)
 
 add_library(Rrt2 STATIC)
 
-file(GLOB_RECURSE RRT2_SRCS
-     ./Src/*.hpp ./Src/*.cpp)
+file(GLOB_RECURSE RRT2_SRCS ./Src/*.cpp)
 
-file(GLOB_RECURSE RRT2_EXPORT_HAEDERS
-     ./Export/*.hpp)
+file(GLOB_RECURSE RRT2_HAEDERS ./Include/*.hpp)
 
-target_sources(Rrt2 PRIVATE ${RRT2_SRCS} ${RRT2_EXPORT_HAEDERS})
-target_include_directories(Rrt2 PRIVATE Src INTERFACE Export PRIVATE Export/Rrt2)
+target_sources(Rrt2 PRIVATE ${RRT2_SRCS} ${RRT2_HAEDERS})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Src FILES ${RRT2_SRCS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Include FILES ${RRT2_EXPORT_HAEDERS})
+
+target_include_directories(Rrt2 PUBLIC Include)
 add_subdirectory(3rd/pcg-c)
 add_subdirectory(3rd/glm)
 add_subdirectory(3rd/GSL)

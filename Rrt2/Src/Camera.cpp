@@ -1,6 +1,6 @@
-#include "Camera.hpp"
-#include "Sampling.hpp"
-#include "Ray.hpp"
+#include "Rrt2/Camera.hpp"
+#include "Rrt2/Sampling.hpp"
+#include "Rrt2/Ray.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 

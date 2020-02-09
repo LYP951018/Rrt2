@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <cstring>
 
+
 namespace rrt
 {
     // https://en.cppreference.com/w/cpp/numeric/bit_cast
