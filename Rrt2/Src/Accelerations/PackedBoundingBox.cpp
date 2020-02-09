@@ -1,7 +1,7 @@
-﻿#include "PackedBoundingBox.hpp"
-#include "BoundingBox.hpp"
-#include "PackedRay.hpp"
-#include "StorageLoadStore.hpp"
+﻿#include "Rrt2/Accelerations/PackedBoundingBox.hpp"
+#include "Rrt2/BoundingBox.hpp"
+#include "Rrt2/Accelerations/PackedRay.hpp"
+#include "Rrt2/StorageLoadStore.hpp"
 #include <algorithm>
 
 namespace rrt

@@ -25,4 +25,12 @@
 #define DEFAULT_MOVE(type) SET_MOVE(default, type)
 #define DELETE_MOVE(type) SET_MOVE(delete, type)
 
-#define ALWAYS_INLINE __attribute__((always_inline))
+#if NDEBUG
+#if _MSC_VER
+#define ALWAYS_INLINE __forceinline
+#else
+#define ALWAYS_INLINE [[gnu::always_inline]]
+#endif
+#else
+#define ALWAYS_INLINE
+#endif

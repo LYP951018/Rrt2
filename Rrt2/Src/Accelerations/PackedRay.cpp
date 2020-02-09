@@ -1,5 +1,5 @@
-﻿#include "PackedRay.hpp"
-#include <Ray.hpp>
+﻿#include "Rrt2/Accelerations/PackedRay.hpp"
+#include "Rrt2/Ray.hpp"
 
 namespace rrt
 {

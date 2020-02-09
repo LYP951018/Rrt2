@@ -1,4 +1,4 @@
-﻿#include "Sampling.hpp"
+﻿#include "Rrt2/Sampling.hpp"
 #include <cassert>
 #include <algorithm>
 #include <cmath>

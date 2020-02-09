@@ -1,14 +1,13 @@
 
 #pragma once
 
-#define _USE_MATH_DEFINES // for C++
 #include <cmath>
 #include <cstdint>
 #include <glm/vec3.hpp>
 
 namespace rrt
 {
-    inline constexpr float kPi = M_PI;
+    inline constexpr float kPi = 3.14159265358979323846f;
 
     bool AlmostEqualUlps(float lhs, float rhs, std::int32_t ulps);
 

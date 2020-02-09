@@ -6,7 +6,7 @@
 #include <cassert>
 #include <cstdint>
 #include <gsl/gsl_assert>
-#include <StdExtras.hpp>
+#include "StdExtras.hpp"
 #include "Helpers.hpp"
 
 #define DefConstInlineVar(type, name, ...) inline const type name = __VA_ARGS__
@@ -345,6 +345,11 @@ namespace rrt
         constexpr std::uint8_t selector =
             V0 + (V1 << 1) + (V2 << 2) + (V3 << 3);
         return _mm_blend_ps(lhs, rhs, selector);
+    }
+
+    inline bool IsZero(Float4 value)
+    {
+        return Msbs(Equal(value, _mm_setzero_ps())) == 0xF;
     }
 
 } // namespace rrt

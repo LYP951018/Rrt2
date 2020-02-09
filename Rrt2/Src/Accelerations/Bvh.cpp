@@ -1,11 +1,12 @@
-﻿#include "Bvh.hpp"
-#include "Geometries/GeometryBase.hpp"
-#include "Scene.hpp"
-#include "PrimRef.hpp"
-#include "BoundingBox.hpp"
-#include "PackedRay.hpp"
+﻿#include "Rrt2/Accelerations/Bvh.hpp"
+#include "Rrt2/Geometries/GeometryBase.hpp"
+#include "Rrt2/Scene.hpp"
+#include "Rrt2/PrimRef.hpp"
+#include "Rrt2/BoundingBox.hpp"
+#include "Rrt2/Accelerations/PackedRay.hpp"
 #include <gsl/span>
 #include <numeric>
+#include <bit>
 
 namespace rrt
 {
