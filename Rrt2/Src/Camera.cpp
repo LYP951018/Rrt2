@@ -27,7 +27,7 @@ namespace rrt
     void Camera::GetRay(const glm::vec2& pixelPos, Ray& ray)
     {
         ray.origin = m_rayOrigin;
-        const glm::vec4 rasterPos4D = glm::vec4(pixelPos, 0.0f, 1.0f);
+        const glm::vec4 rasterPos4D = glm::vec4(pixelPos, 1.0f, 1.0f);
         const glm::vec3 worldSpaceEndPoint =
             glm::vec3(m_rasterToWorld * rasterPos4D);
         const glm::vec3 direction =
