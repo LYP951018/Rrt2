@@ -38,9 +38,9 @@ int main()
     std::vector<Ray> rays;
     mainCamera.GenerateRays(randState, rays, kSamplesPerPixel);
     std::vector<unsigned char> pixels(kFilmHeight * kFilmWidth * 4);
-    for (int i = 30; i < kFilmHeight; ++i)
+    for (int i = 0; i < kFilmHeight; ++i)
     {
-        for (int j = 30; j < kFilmWidth; ++j)
+        for (int j = 0; j < kFilmWidth; ++j)
         {
             Vec3f color = {};
             for (int k = 0; k < kSamplesPerPixel; ++k)
