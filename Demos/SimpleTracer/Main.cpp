@@ -25,7 +25,7 @@ int main()
     pcg32_srandom_r(&randState, std::time(0), (intptr_t)&randState);
     constexpr float sqrt3f = std::numbers::sqrt3_v<float>;
 
-    constexpr float kTriangleZ = 30.0f;
+    constexpr float kTriangleZ = 10.0f;
     // 美丽的等边三角形
     std::vector<Vec3f> positions = {
         Vec3f{0.0f, sqrt3f / 2.0f - 0.5f, kTriangleZ},
