@@ -60,7 +60,9 @@ namespace rrt
             const PackedFloats lessThanOne = Less(floats, MakeFloats(1.0f));
             return And(lessThanOne, biggerThanZero);
         };
-        const PackedFloats uvMask = And(inRange(u), inRange(v));
+        const PackedFloats vMask =
+            And(Greater(v, ZeroFloats()), Less(Add(u, v), MakeFloats(1.0f)));
+        const PackedFloats uvMask = And(inRange(u), vMask);
         const PackedFloats filtered = And(uvMask, t);
         if (IsZero(filtered))
         {
