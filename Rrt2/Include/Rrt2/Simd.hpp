@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <gsl/gsl_assert>
 #include "StdExtras.hpp"
-#include "Helpers.hpp"
+#include "HelperMacros.hpp"
 
 #define DefConstInlineVar(type, name, ...) inline const type name = __VA_ARGS__
 
