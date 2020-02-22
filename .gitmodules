@@ -10,3 +10,7 @@
 [submodule "Tests/3rd/Catch2"]
 	path = Tests/3rd/Catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "Rrt2/3rd/assimp"]
+	path = Rrt2/3rd/assimp
+	url = https://github.com/assimp/assimp.git
+	branch = tags/v5.0.1
