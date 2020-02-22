@@ -3,6 +3,7 @@
 #include <Rrt2/Geometries/TriangleMesh.hpp>
 #include <pcg_variants.h>
 #include <Rrt2/Stb/stb_image_write.h>
+#include <Rrt2/SceneObjLoader.hpp>
 #include <numbers>
 #include <ctime>
 #include <numbers>
@@ -27,13 +28,15 @@ int main()
 
     constexpr float kTriangleZ = 10.0f;
     // 美丽的等边三角形
-    std::vector<Vec3f> positions = {
+    /*std::vector<Vec3f> positions = {
         Vec3f{0.0f, sqrt3f / 2.0f - 0.5f, kTriangleZ},
         Vec3f{0.5f, -0.5f, kTriangleZ}, Vec3f{-0.5f, -0.5f, kTriangleZ}};
 
-    std::vector<TriangleIndices> indices = {{0, 1, 2}};
-    mainScene->AddTriangleMesh(
-        std::make_unique<TriangleMesh>(positions, indices));
+    std::vector<TriangleIndices> indices = {{0, 1, 2}};*/
+    bool added = AddMeshesFromObj(*mainScene, "./models/cornell_box.obj");
+  /*  mainScene->AddTriangleMesh(
+        std::make_unique<TriangleMesh>(positions, indices));*/
+    assert(added);
     mainScene->Ready();
     std::vector<Ray> rays;
     mainCamera.GenerateRays(randState, rays, kSamplesPerPixel);
