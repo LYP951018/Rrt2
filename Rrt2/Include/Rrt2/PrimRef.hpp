@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Simd.hpp"
-#include "Helpers.hpp"
 #include "BoundingBox.hpp"
 #include <cstdint>
 #include <glm/vec3.hpp>

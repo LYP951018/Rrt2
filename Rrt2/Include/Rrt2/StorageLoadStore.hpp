@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <glm/gtc/type_ptr.hpp>
-#include "Helpers.hpp"
+#include "HelperMacros.hpp"
 #include "Vec3.hpp"
 #include "Simd.hpp"
 

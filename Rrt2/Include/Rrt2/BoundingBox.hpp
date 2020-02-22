@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <cstddef>
-#include "Helpers.hpp"
 #include "Simd.hpp"
 #include <glm/vec4.hpp>
 
