@@ -19,7 +19,7 @@ namespace rrt
 
     struct TriangleIndices
     {
-        std::uint16_t x, y, z;
+        std::uint16_t v0, v1, v2;
     };
 
     class TriangleMesh : public GeometryBase
@@ -38,7 +38,6 @@ namespace rrt
         FillPrimitiveArray(AlignedVec<PrimRefStorage>& prims) const override;
 
       private:
-        // FIXME: SharedView / span here.
         std::vector<Vec3f> m_positions;
         std::vector<TriangleIndices> m_indices;
     };

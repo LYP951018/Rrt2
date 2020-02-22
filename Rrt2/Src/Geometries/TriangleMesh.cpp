@@ -17,8 +17,8 @@ namespace rrt
     {
         const TriangleIndices& indices = m_indices[id];
 
-        return SingleTriangle{m_positions[indices.x], m_positions[indices.y],
-                              m_positions[indices.z]};
+        return SingleTriangle{m_positions[indices.v0], m_positions[indices.v1],
+                              m_positions[indices.v2]};
     }
 
     void TriangleMesh::FillPrimitiveArray(AlignedVec<PrimRefStorage>& prims) const
@@ -26,9 +26,9 @@ namespace rrt
         std::uint32_t primId = 0;
         for (const TriangleIndices& indices : m_indices)
         {
-            const Float4 x0 = FloatsFromMemory(&m_positions[indices.x].x);
-            const Float4 x1 = FloatsFromMemory(&m_positions[indices.y].x);
-            const Float4 x2 = FloatsFromMemory(&m_positions[indices.z].x);
+            const Float4 x0 = FloatsFromMemory(&m_positions[indices.v0].x);
+            const Float4 x1 = FloatsFromMemory(&m_positions[indices.v1].x);
+            const Float4 x2 = FloatsFromMemory(&m_positions[indices.v2].x);
             const Float4 lower = Min(x2, Min(x0, x1));
             const Float4 upper = Max(x2, Max(x0, x1));
             BoundingBox box{lower, upper};
