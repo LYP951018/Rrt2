@@ -3,7 +3,7 @@
 #include <Rrt2/Ray.hpp>
 #include <pcg_variants.h>
 #include <ctime>
-#include <MathBasics.hpp>
+#include <Rrt2/MathBasics.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
 using namespace rrt;
