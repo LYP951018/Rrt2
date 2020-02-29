@@ -1,8 +1,8 @@
 ﻿#include <catch2/catch.hpp>
 #include "TestHelpers.hpp"
 #include <Rrt2/BoundingBox.hpp>
-#include <Accelerations/PackedRay.hpp>
-#include <Accelerations/PackedBoundingBox.hpp>
+#include <Rrt2/Accelerations/PackedRay.hpp>
+#include <Rrt2/Accelerations/PackedBoundingBox.hpp>
 #include <Rrt2/BoundingBox.hpp>
 #include <Rrt2/Ray.hpp>
 
@@ -37,4 +37,19 @@ TEST_CASE("PackedBoundingBox intersection", "[PackedBoundingBox]")
     PackedRay packed{ray};
     const int mask = simd.Load().Hit(packed, 0.0f, 10.0f);
     CHECK(mask == 8);
+}
+
+TEST_CASE("PackedBoundingBox math functions", "[PackedBoundingBox]")
+{
+    const BoundingBoxStorage testBBox{
+            .corners = {glm::vec4{1.0f, 2.0f, 3.0f, 1.0f}, glm::vec4{4.0f, 7.0f, 9.0f, 1.0f}},
+    };
+    const BoundingBox bbox = testBBox.Load();
+    const Float4 size = bbox.GetSize();
+
+    CHECK(M128Comparer{ size } == M128Comparer{ MakeFloats(3.0f, 5.0f, 6.0f, 0.0f) });
+
+    const float halfArea = bbox.GetHalfArea();
+
+    CHECK(Approx{ halfArea } == 63.0f);
 }
