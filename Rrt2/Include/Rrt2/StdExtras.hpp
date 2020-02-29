@@ -2,7 +2,7 @@
 
 #include <type_traits>
 #include <cstring>
-
+#include <array>
 
 namespace rrt
 {
@@ -19,4 +19,7 @@ namespace rrt
         std::memcpy(&dst, &src, sizeof(To));
         return dst;
     }
+
+    template<typename T, std::size_t N1, std::size_t N2>
+    using MDArray = std::array<std::array<T, N2>, N1>;
 } // namespace rrt
