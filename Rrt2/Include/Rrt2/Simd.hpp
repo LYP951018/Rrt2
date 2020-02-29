@@ -137,6 +137,11 @@ namespace rrt
         _mm_store_ps(p, floats);
     }
 
+    inline void StoreAligned(Int4 floats, int* p)
+    {
+        StoreAligned(AsFloats(floats), reinterpret_cast<float*>(p));
+    }
+
     inline float First(Float4 floats) noexcept { return _mm_cvtss_f32(floats); }
 
     inline float Second(Float4 floats) noexcept
@@ -157,6 +162,16 @@ namespace rrt
     inline std::int32_t First(Int4 ints) noexcept
     {
         return bit_cast<std::int32_t>(First(AsFloats(ints)));
+    }
+
+    inline float Second(Int4 ints) noexcept
+    {
+        return bit_cast<std::int32_t>(Second(AsFloats(ints)));
+    }
+
+    inline float Third(Int4 ints)
+    {
+        return bit_cast<std::int32_t>(Third(AsFloats(ints)));
     }
 
     inline Float4 SetFirst(Float4 floats, float f) noexcept
