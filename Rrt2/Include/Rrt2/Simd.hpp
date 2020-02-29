@@ -3,6 +3,7 @@
 #include <xmmintrin.h>
 #include <immintrin.h>
 #include <emmintrin.h>
+#include <pmmintrin.h>
 #include <cassert>
 #include <cstdint>
 #include <gsl/gsl_assert>
@@ -362,9 +363,26 @@ namespace rrt
         return _mm_blend_ps(lhs, rhs, selector);
     }
 
+    inline bool AllEqual(Float4 lhs, Float4 rhs)
+    {
+        return Msbs(Equal(lhs, rhs)) == 0xF;
+    }
+
     inline bool IsZero(Float4 value)
     {
-        return Msbs(Equal(value, _mm_setzero_ps())) == 0xF;
+        return AllEqual(value, _mm_setzero_ps());
+    }
+
+    inline float SumUpLanes(Float4 value)
+    {
+        const Float4 partial = _mm_hadd_ps(value, value);
+        const Float4 sum = _mm_hadd_ps(partial, partial);
+        return First(sum);
+    }
+    
+    inline Float4 Select(Float4 selector, Float4 v1, Float4 v2)
+    {
+        return Or(And(selector, v1), _mm_andnot_ps(selector, v2));
     }
 
 } // namespace rrt
