@@ -34,3 +34,7 @@
 #else
 #define ALWAYS_INLINE
 #endif
+
+#if _MSC_VER
+#define RRT_UNREACHABLE __assume(0)
+#endif

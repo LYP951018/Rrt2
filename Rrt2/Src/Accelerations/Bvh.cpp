@@ -4,6 +4,8 @@
 #include "Rrt2/PrimRef.hpp"
 #include "Rrt2/BoundingBox.hpp"
 #include "Rrt2/Accelerations/PackedRay.hpp"
+#include "Rrt2/MathBasics.hpp"
+#include <array>
 #include <gsl/span>
 #include <numeric>
 #include <bit>
@@ -13,8 +15,8 @@ namespace rrt
     // 希望这里可以被 inline
     BoundingBox GetBounds(gsl::span<const PrimRefStorage> prims)
     {
-        Float4 lower = GetNegInfinity();
-        Float4 upper = GetInfinity();
+        Float4 lower = GetInfinity();
+        Float4 upper = GetNegInfinity();
         for (const PrimRefStorage& prim : prims)
         {
             const auto loaded = prim.Load();
@@ -43,68 +45,257 @@ namespace rrt
         {
             geometry->FillPrimitiveArray(primRefs);
         }
-
-        m_root = Build(gsl::make_span(primRefs), m_rootBox);
+        PrimInfo root;
+        for (const PrimRefStorage& prim : primRefs)
+        {
+            root.Extend(prim.Load());
+        }
+        m_root = Build(root, gsl::make_span(primRefs));
     }
 
-    NodeRef Bvh::Build(gsl::span<PrimRefStorage> prims,
-                       BoundingBoxStorage& boundingBoxStorage)
+    NodeRef VECTORCALL Bvh::Build(PrimInfo primInfo,
+                                  gsl::span<PrimRefStorage> prims)
     {
-        if (prims.size() <= kMaxSimdWidth)
+        PrimInfo childInfos[4];
+        BinSplit split = Split(primInfo, prims, childInfos[0], childInfos[1]);
+        childInfos[0] = primInfo;
+        gsl::span<PrimRefStorage> childPrims[4];
+        childPrims[0] = prims.subspan(0, split.splitPos);
+        childPrims[1] = prims.subspan(split.splitPos);
+        int currentChildrenCount = 2;
+
+        while (currentChildrenCount < 4)
         {
-            Leaf* const leaf = new Leaf;
-            const std::uint32_t simdRequired = PackedTriangle::GetSimdCount(
-                static_cast<std::uint32_t>(prims.size()));
-            leaf->primitives.reserve(simdRequired);
-            std::uint32_t start = 0;
-            std::uint32_t end = static_cast<std::uint32_t>(prims.size());
-            for (std::uint32_t i = 0; i < simdRequired && start < end; ++i)
+            int childToSplit = 0;
+            float maxArea = kNegInf;
+            bool allLeaf = true;
+            for (int i = 0; i < currentChildrenCount; ++i)
             {
-                // PackedTriangle triangle;
-                PackedTriangleStorage& triangle =
-                    leaf->primitives.emplace_back();
-                triangle.Fill(prims.data(), start, end, m_scene);
+                if (childPrims[i].size() <= kMaxSimdWidth)
+                {
+                    continue;
+                }
+                allLeaf = false;
+                const float childArea =
+                    childInfos[currentChildrenCount].geom.GetHalfArea();
+                if (maxArea < childArea)
+                {
+                    maxArea = childArea;
+                    childToSplit = i;
+                }
             }
-            return NodeRef{leaf};
+            if (allLeaf)
+            {
+                break;
+            }
+            gsl::span<PrimRefStorage> primsToSplit = childPrims[childToSplit];
+            BinSplit childSplit = Split(childInfos[childToSplit], primsToSplit,
+                                        childInfos[childToSplit],
+                                        childInfos[currentChildrenCount]);
+            childPrims[childToSplit] =
+                primsToSplit.subspan(0, childSplit.splitPos);
+            childPrims[currentChildrenCount] =
+                primsToSplit.subspan(childSplit.splitPos);
+            currentChildrenCount += 1;
         }
-        const BoundingBox boundingBox = GetBounds(prims);
-        const Float4 center = boundingBox.GetCenter();
-        const float centerX = First(center);
-        const float centerY = Second(center);
-        //暂时使用 SSE，分成 4 份
-        // FIXME: 使用递归实现任意份的分割
-        const auto xPivot = std::partition(
-            prims.begin(), prims.end(), [&](const PrimRefStorage& rhs) {
-                return std::midpoint(rhs.lower.x, rhs.upper.x) > centerX;
-            });
+        InteriorNodeStorage* interiorNode = new InteriorNodeStorage;
+        for (int i = 0; i < currentChildrenCount; ++i)
+        {
+            if (childPrims[i].size() <= kMaxSimdWidth)
+            {
+                Leaf* const leaf = new Leaf;
+                const std::uint32_t simdRequired = PackedTriangle::GetSimdCount(
+                    static_cast<std::uint32_t>(prims.size()));
+                leaf->primitives.reserve(simdRequired);
+                std::uint32_t start = 0;
+                std::uint32_t end = static_cast<std::uint32_t>(prims.size());
+                for (std::uint32_t i = 0; i < simdRequired && start < end; ++i)
+                {
+                    // PackedTriangle triangle;
+                    PackedTriangleStorage& triangle =
+                        leaf->primitives.emplace_back();
+                    triangle.Fill(prims.data(), start, end, m_scene);
+                }
+                interiorNode->children[i] = NodeRef{leaf};
+            }
+            else
+            {
+                interiorNode->children[i] = Build(childInfos[i], childPrims[i]);
+            }
+        }
+        return NodeRef{interiorNode};
+    }
 
-        const auto y1Pivot = std::partition(
-            prims.begin(), xPivot, [&](const PrimRefStorage& rhs) {
-                return std::midpoint(rhs.lower.y, rhs.upper.y) > centerY;
-            });
+    static constexpr std::uint32_t kBinCount = 4;
+    static constexpr std::uint32_t kDimCount = 3;
 
-        const auto y2Pivot =
-            std::partition(xPivot, prims.end(), [&](const PrimRefStorage& rhs) {
-                return std::midpoint(rhs.lower.y, rhs.upper.y) > centerY;
-            });
+    struct BinInfo
+    {
+        // x, y, z
 
-        const std::ptrdiff_t x0 = y1Pivot - prims.begin();
-        const std::ptrdiff_t x1 = xPivot - y1Pivot;
-        const std::ptrdiff_t x2 = y2Pivot - xPivot;
+        BinInfo() { Clear(); }
 
-        InteriorNodeStorage* const node = new InteriorNodeStorage;
-        BoundingBoxStorage childBBox;
-        const auto build = [&](std::ptrdiff_t start, std::ptrdiff_t count,
-                               std::uint32_t index) {
-            node->children[index] =
-                Build(prims.subspan(start, count), childBBox);
-            node->childrenBoxes.Set(index, childBBox);
-        };
-        build(0, x0, 0);
-        build(x0, x1, 1);
-        build(xPivot - prims.begin(), x2, 2);
-        build(y2Pivot - prims.begin(), prims.end() - y2Pivot, 3);
-        return NodeRef{node};
+        void Clear()
+        {
+            for (std::uint32_t i = 0; i < kDimCount; ++i)
+            {
+                for (std::uint32_t j = 0; j < kBinCount; ++j)
+                {
+                    binGeomBBoxes[i][j] = BoundingBoxStorage{
+                        .corners = {glm::vec4{kInf}, glm::vec4{kNegInf}}};
+                    binGeomCounts[i][j] = 0;
+                }
+            }
+        }
+
+        MDArray<BoundingBoxStorage, kDimCount, kBinCount> binGeomBBoxes;
+        MDArray<std::uint32_t, kDimCount, kBinCount> binGeomCounts;
+    };
+
+    struct BinMapping
+    {
+        BinMapping(PrimInfo primInfo)
+        {
+            const Float4 width = primInfo.centroid.GetSize();
+            ofs = primInfo.centroid.corners[0];
+            //   const Float4 eps = MakeFloats(1.0f - 1E-34f);
+            // 确保最边上的 primitive 不会产生 binid = 4
+            const Float4 bias = MakeFloats(0.99f);
+            const Float4 binCountVec =
+                MakeFloats(static_cast<float>(kBinCount));
+            const Float4 equalZero = Equal(width, ZeroFloats());
+            scale = Select(equalZero, ZeroFloats(),
+                           Div(Mul(binCountVec, bias), width));
+        }
+
+        Int4 CalcBinId(PrimRef primRef) const
+        {
+            const Float4 dist = Sub(primRef.GetCenter(), ofs);
+            const Float4 floatId = Mul(scale, dist);
+            return _mm_cvttps_epi32(floatId);
+        }
+
+        Float4 ofs, scale;
+    };
+
+    BinSplit VECTORCALL Bvh::Split(PrimInfo primInfo,
+                                   gsl::span<PrimRefStorage> prims,
+                                   PrimInfo& leftInfo, PrimInfo& rightInfo)
+    {
+
+        BinMapping binMapping{primInfo};
+        BinInfo binInfo;
+
+        for (const PrimRefStorage& primRefStorage : prims)
+        {
+            const PrimRef primRef = primRefStorage.Load();
+            const Int4 binId = binMapping.CalcBinId(primRef);
+
+            const auto updateBinInfo = [&](int dim, int dimBinId) {
+                BoundingBoxStorage& binGeomBBoxStorage =
+                    binInfo.binGeomBBoxes[dim][dimBinId];
+                BoundingBox bbox = binGeomBBoxStorage.Load();
+                binInfo.binGeomCounts[dim][dimBinId] += 1;
+                bbox.Extend(BoundingBox{primRef.lower, primRef.upper});
+                // TODO: NT Store here?
+                bbox.StoreTo(binGeomBBoxStorage);
+            };
+            const int x = First(binId);
+            const int y = Second(binId);
+            const int z = Third(binId);
+            updateBinInfo(0, x);
+            updateBinInfo(1, y);
+            updateBinInfo(2, z);
+        }
+
+        float rightScores[kDimCount][kBinCount - 1] = {};
+        int bestBin[kDimCount];
+        int bestDim;
+        float cost = kInf;
+
+        for (std::uint32_t i = 0; i < kDimCount; ++i)
+        {
+            float dimCost = kInf;
+
+            BoundingBox rightBBox = BoundingBox::CreateInvalidBBox();
+
+            for (std::int32_t r = kBinCount - 2; r >= 0; --r)
+            {
+                rightBBox.Extend(binInfo.binGeomBBoxes[i][r + 1].Load());
+                rightScores[i][r] =
+                    rightBBox.GetHalfArea() * binInfo.binGeomCounts[i][r + 1];
+            }
+            BoundingBox lBBox{.corners = {GetInfinity(), GetNegInfinity()}};
+
+            for (std::int32_t l = 0; l < kBinCount - 1; ++l)
+            {
+                // Cost j = A L,j N L,j +A R,j N R,j
+                // N : count of triangles
+                // A: volume
+                lBBox.Extend(binInfo.binGeomBBoxes[i][l].Load());
+                const float leftScore =
+                    lBBox.GetHalfArea() * binInfo.binGeomCounts[i][l];
+
+                const float currentCost = leftScore + rightScores[i][l];
+                if (currentCost < dimCost)
+                {
+                    bestBin[i] = l;
+                    dimCost = currentCost;
+                }
+            }
+
+            if (dimCost < cost)
+            {
+                cost = dimCost;
+                bestDim = i;
+            }
+        }
+
+        float splitPos;
+        const Float4 domain =
+            Mul(primInfo.centroid.GetSize(), MakeFloats(1.0f / kBinCount));
+        // what about store domain/corner first?
+        switch (bestDim)
+        {
+        case 0:
+            splitPos = First(primInfo.centroid.corners[0]) +
+                       (bestBin[0] + 1) * First(domain);
+            break;
+        case 1:
+            splitPos = Second(primInfo.centroid.corners[0]) +
+                       (bestBin[0] + 1) * Second(domain);
+            break;
+        case 2:
+            splitPos = Third(primInfo.centroid.corners[0]) +
+                       (bestBin[0] + 1) * Third(domain);
+            break;
+        default:
+            RRT_UNREACHABLE;
+            break;
+        }
+        const auto pivot =
+            std::partition(prims.begin(), prims.end(),
+                           [&](const PrimRefStorage& primInfoStorage) {
+                               bool isLeft = (primInfoStorage.lower[bestDim] +
+                                              primInfoStorage.upper[bestDim]) /
+                                                 2.0f <
+                                             splitPos;
+                               if (isLeft)
+                               {
+                                   leftInfo.Extend(primInfoStorage.Load());
+                               }
+                               else
+                               {
+                                   rightInfo.Extend(primInfoStorage.Load());
+                               }
+                               return isLeft;
+                           });
+
+        return BinSplit{.cost = cost,
+                        .dim = bestDim,
+                        .dist = splitPos,
+                        .splitPos =
+                            static_cast<std::size_t>(pivot - prims.begin())};
     }
 
     NodeRef::NodeRef(const Leaf* leaf)
@@ -117,7 +308,7 @@ namespace rrt
         : m_nodeRef{reinterpret_cast<std::uintptr_t>(node) | kMask}
     {
         // FIXME
-        assert((reinterpret_cast<std::uintptr_t>(node) & kMask) == 1);
+        assert((reinterpret_cast<std::uintptr_t>(m_nodeRef) & kMask) == 1);
     }
 
     NodeRef::NodeRef() : m_nodeRef{} {}
@@ -146,9 +337,8 @@ namespace rrt
     }
 
     std::optional<HitRecord>
-    InteriorNodeStorage::Hit(const PackedRay& packedRay,
-                                               const Ray& ray, float tMin,
-                                               float tMax) const
+    InteriorNodeStorage::Hit(const PackedRay& packedRay, const Ray& ray,
+                             float tMin, float tMax) const
     {
         std::uint32_t hitMask = childrenBoxes.Load().Hit(packedRay, tMin, tMax);
         if (hitMask == 0)
@@ -197,6 +387,12 @@ namespace rrt
                 hitRecord = childRecord;
         }
         return hitRecord;
+    }
+
+    void VECTORCALL PrimInfo::Extend(PrimRef primRef)
+    {
+        centroid.Extend(primRef.GetCenter());
+        geom.Extend(BoundingBox{.corners = {primRef.lower, primRef.upper}});
     }
 
 } // namespace rrt

@@ -16,7 +16,7 @@ namespace rrt
               glm::value_ptr(upper));
     }
 
-    Float4 LoadedPrimRef::GetCenter() const
+    Float4 PrimRef::GetCenter() const
     {
         return Div(Add(lower, upper), MakeFloats(2.0f));
     }
