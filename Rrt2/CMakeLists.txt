@@ -24,8 +24,9 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "Disable all importers 
 set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "Disable all exporters by default")
 SET(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "Enable the obj importer")
 add_subdirectory(3rd/assimp)
+add_subdirectory(3rd/fmt)
 #target_compile_features(Rrt2 PUBLIC cxx_std_20)
-target_link_libraries(Rrt2 PUBLIC pcg-c glm::glm GSL assimp::assimp)
+target_link_libraries(Rrt2 PUBLIC pcg-c glm::glm GSL assimp::assimp fmt::fmt)
 
 if (MSVC)
     target_compile_options(Rrt2 PUBLIC /utf-8 /permissive- /std:c++latest /arch:AVX2)
