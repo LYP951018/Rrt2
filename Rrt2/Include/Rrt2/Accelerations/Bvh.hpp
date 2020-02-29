@@ -5,6 +5,7 @@
 #include "PackedTriangle.hpp"
 #include "PackedBoundingBox.hpp"
 #include "../AlignedVec.hpp"
+#include "../PrimRef.hpp"
 #include <gsl/span>
 
 namespace rrt
@@ -76,6 +77,7 @@ namespace rrt
 
     struct alignas(16) Leaf
     {
+        // FIXME: static_vector or something
         AlignedVec<PackedTriangleStorage> primitives;
 
         std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
@@ -83,6 +85,27 @@ namespace rrt
     };
 
     class PrimRefStorage;
+
+    struct BinSplit
+    {
+        float cost;
+        int dim; // bin 在哪一维分的
+        float dist;
+        std::size_t splitPos;
+        //BinMapping binMapping;
+    };
+
+    struct PrimInfo
+    {
+        BoundingBox centroid; // 多边形中心形成的 bounding box，用于生成 bin
+        BoundingBox geom; // 多边形本身的 bounding box，计算 SAH
+
+        PrimInfo()
+            : centroid{BoundingBox::CreateInvalidBBox()},
+              geom{BoundingBox::CreateInvalidBBox()}
+        {}
+        void VECTORCALL Extend(PrimRef primRef);
+    };
 
     struct Bvh : AccelerationBase
     {
@@ -92,10 +115,13 @@ namespace rrt
         Bvh(const Scene* scene);
         std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
         void Build() override;
-        // std::optional<HitRecord>
 
       private:
-        NodeRef Build(gsl::span<PrimRefStorage> prims, BoundingBoxStorage& boundingBoxStorage);
+        NodeRef VECTORCALL Build(PrimInfo primInfo,
+                                 gsl::span<PrimRefStorage> prims);
+        BinSplit VECTORCALL Split(PrimInfo primInfo,
+                                  gsl::span<PrimRefStorage> prims,
+                                  PrimInfo& leftInfo, PrimInfo& rightInfo);
 
         const Scene* m_scene;
         NodeRef m_root;

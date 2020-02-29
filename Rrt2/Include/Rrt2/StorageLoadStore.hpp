@@ -18,6 +18,11 @@ namespace rrt
         return FloatsFromAlignedMemory(glm::value_ptr(storage));
     }
 
+    inline void ALWAYS_INLINE StoreStorage(Float4 value, glm::vec4& storage)
+    {
+        Store(value, glm::value_ptr(storage));
+    }
+
     inline Vec3fPacked ALWAYS_INLINE LoadStorage(const Vec3fPackedStorage& storage)
     {
         return Vec3fPacked {

@@ -8,7 +8,7 @@
 
 namespace rrt
 {
-    class alignas(kSimdAlignment) LoadedPrimRef
+    class alignas(kSimdAlignment) PrimRef
     {
       public:
         Float4 lower; // lower bounds and geomid
@@ -30,9 +30,9 @@ namespace rrt
         //        std::uint32_t GetPrimId() const;
         //        std::uint32_t GetGeomId() const;
 
-        inline LoadedPrimRef Load() const
+        inline PrimRef Load() const
         {
-            return LoadedPrimRef{
+            return PrimRef{
                 .lower = FloatsFromAlignedMemory(glm::value_ptr(lower)),
                 .upper = FloatsFromAlignedMemory(glm::value_ptr(upper))};
         }
