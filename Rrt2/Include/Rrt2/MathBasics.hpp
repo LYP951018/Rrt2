@@ -4,10 +4,13 @@
 #include <cmath>
 #include <cstdint>
 #include <glm/vec3.hpp>
+#include <cmath>
 
 namespace rrt
 {
     inline constexpr float kPi = 3.14159265358979323846f;
+    inline constexpr float kNegInf = -INFINITY;
+    inline constexpr float kInf = INFINITY;
 
     bool AlmostEqualUlps(float lhs, float rhs, std::int32_t ulps);
 
