@@ -273,23 +273,24 @@ namespace rrt
             RRT_UNREACHABLE;
             break;
         }
-        const auto pivot =
-            std::partition(prims.begin(), prims.end(),
-                           [&](const PrimRefStorage& primInfoStorage) {
-                               bool isLeft = (primInfoStorage.lower[bestDim] +
-                                              primInfoStorage.upper[bestDim]) /
-                                                 2.0f <
-                                             splitPos;
-                               if (isLeft)
-                               {
-                                   leftInfo.Extend(primInfoStorage.Load());
-                               }
-                               else
-                               {
-                                   rightInfo.Extend(primInfoStorage.Load());
-                               }
-                               return isLeft;
-                           });
+        leftInfo.Reset();
+        rightInfo.Reset();
+        const auto pivot = std::partition(
+            prims.begin(), prims.end(),
+            [&](const PrimRefStorage& primInfoStorage) {
+                float centerPos = std::midpoint(primInfoStorage.lower[bestDim],
+                                                primInfoStorage.upper[bestDim]);
+                bool isLeft = centerPos < splitPos;
+                if (isLeft)
+                {
+                    leftInfo.Extend(primInfoStorage.Load());
+                }
+                else
+                {
+                    rightInfo.Extend(primInfoStorage.Load());
+                }
+                return isLeft;
+            });
 
         return BinSplit{.cost = cost,
                         .dim = bestDim,
@@ -308,7 +309,7 @@ namespace rrt
         : m_nodeRef{reinterpret_cast<std::uintptr_t>(node) | kMask}
     {
         // FIXME
-        assert((reinterpret_cast<std::uintptr_t>(m_nodeRef) & kMask) == 1);
+        assert((m_nodeRef & kMask) == 1);
     }
 
     NodeRef::NodeRef() : m_nodeRef{} {}

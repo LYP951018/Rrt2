@@ -101,10 +101,15 @@ namespace rrt
         BoundingBox geom; // 多边形本身的 bounding box，计算 SAH
 
         PrimInfo()
-            : centroid{BoundingBox::CreateInvalidBBox()},
-              geom{BoundingBox::CreateInvalidBBox()}
-        {}
+        {
+            Reset();
+        }
         void VECTORCALL Extend(PrimRef primRef);
+        void Reset()
+        {
+            centroid = BoundingBox::CreateInvalidBBox();
+            geom = BoundingBox::CreateInvalidBBox();
+        }
     };
 
     struct Bvh : AccelerationBase
