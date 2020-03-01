@@ -27,7 +27,7 @@ namespace rrt
         }
         t0Min = Max(t0Min, MakeFloats(tMin));
         t1Max = Min(t1Max, MakeFloats(tMax));
-        const int mask = Msbs(Sub(t0Min, t1Max));
+        const int mask = Msbs(LessEq(t0Min, t1Max));
         return static_cast<std::uint32_t>(mask);
     }
 

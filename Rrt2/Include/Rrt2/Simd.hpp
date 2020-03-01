@@ -210,6 +210,11 @@ namespace rrt
 
     inline Float4 Less(Float4 lhs, Float4 rhs) noexcept
     {
+        return _mm_cmplt_ps(lhs, rhs);
+    }
+
+    inline Float4 LessEq(Float4 lhs, Float4 rhs) noexcept
+    {
         return _mm_cmple_ps(lhs, rhs);
     }
 
