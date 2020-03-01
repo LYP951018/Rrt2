@@ -1,4 +1,4 @@
-#include "DebugHelper.hpp"
+#include "Rrt2/DebugHelper.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <fmt/format.h>
 #include <cstdio>
