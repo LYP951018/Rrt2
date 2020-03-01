@@ -218,9 +218,14 @@ namespace rrt
         return _mm_cmple_ps(lhs, rhs);
     }
 
-    inline Float4 Greater(Float4 lhs, Float4 rhs) noexcept
+    inline Float4 GreaterEq(Float4 lhs, Float4 rhs) noexcept
     {
         return _mm_cmpge_ps(lhs, rhs);
+    }
+
+    inline Float4 Greater(Float4 lhs, Float4 rhs) noexcept
+    {
+        return _mm_cmpgt_ps(lhs, rhs);
     }
 
     inline Float4 Equal(Float4 lhs, Float4 rhs) noexcept

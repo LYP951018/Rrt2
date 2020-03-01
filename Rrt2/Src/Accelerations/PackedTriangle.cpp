@@ -56,12 +56,12 @@ namespace rrt
         const PackedFloats v = Mul(Dot3(packedRay.speed, qVec), invDet);
         const PackedFloats t = Mul(Dot3(e2, qVec), invDet);
         const auto inRange = [&](PackedFloats floats) {
-            const PackedFloats biggerThanZero = Greater(floats, ZeroFloats());
-            const PackedFloats lessThanOne = Less(floats, MakeFloats(1.0f));
+            const PackedFloats biggerThanZero = GreaterEq(floats, ZeroFloats());
+            const PackedFloats lessThanOne = LessEq(floats, MakeFloats(1.0f));
             return And(lessThanOne, biggerThanZero);
         };
         const PackedFloats vMask =
-            And(Greater(v, ZeroFloats()), Less(Add(u, v), MakeFloats(1.0f)));
+            And(GreaterEq(v, ZeroFloats()), LessEq(Add(u, v), MakeFloats(1.0f)));
         const PackedFloats uvMask = And(inRange(u), vMask);
         const PackedFloats filtered = And(uvMask, t);
         if (IsZero(filtered))
