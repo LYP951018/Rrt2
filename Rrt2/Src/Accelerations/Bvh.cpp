@@ -99,9 +99,15 @@ namespace rrt
             currentChildrenCount += 1;
         }
         InteriorNodeStorage* interiorNode = new InteriorNodeStorage;
-        for (int i = 0; i < currentChildrenCount; ++i)
+        for (int i = 0; i < 4; ++i)
         {
-            if (childPrims[i].size() <= kMaxSimdWidth)
+            if (childPrims[i].empty())
+            {
+                // do nothing
+                // this would create a childrenBox with inf, -inf
+                // which would never be hit off
+            }
+            else if (childPrims[i].size() <= kMaxSimdWidth)
             {
                 Leaf* const leaf = new Leaf;
                 const std::uint32_t simdRequired = PackedTriangle::GetSimdCount(
@@ -122,6 +128,9 @@ namespace rrt
             {
                 interiorNode->children[i] = Build(childInfos[i], childPrims[i]);
             }
+            BoundingBoxStorage bboxStorage;
+            childInfos[i].geom.StoreTo(bboxStorage);
+            interiorNode->childrenBoxes.Set(i, bboxStorage);
         }
         return NodeRef{interiorNode};
     }
