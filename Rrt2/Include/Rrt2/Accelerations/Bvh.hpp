@@ -71,8 +71,11 @@ namespace rrt
         PackedBoundingBoxStorage childrenBoxes;
         NodeRef children[4];
 
+        InteriorNodeStorage() { Clear(); }
         std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
                                      float tMax) const;
+
+        void Clear();
     };
 
     struct alignas(16) Leaf
