@@ -381,6 +381,16 @@ namespace rrt
         return hitRecord;
     }
 
+    void InteriorNodeStorage::Clear()
+    {
+        BoundingBoxStorage invalidBBox = BoundingBoxStorage{
+            .corners = {glm::vec4{kInf}, glm::vec4{kNegInf}}};
+        for (int i = 0; i < 4; ++i)
+        {
+            childrenBoxes.Set(i, invalidBBox);
+        }
+    }
+
     std::optional<HitRecord> Leaf::Hit(const PackedRay& packedRay,
                                        const Ray& ray, float tMin,
                                        float tMax) const
