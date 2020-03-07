@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="rrt::NodeRef">
+    <Intrinsic Name="index" Expression="(int)(m_nodeRef &amp; 1) == 0"/>
+    <DisplayString Condition="index() == 0">
+      {{ kind=InterNode }}
+    </DisplayString>
+    <DisplayString Condition="index() == 1">
+      {{ kind=Leaf}}
+    </DisplayString>
+
+    <Expand>
+      <Item Name="InterNode" Condition="index() == 0">
+        *(rrt::InteriorNodeStorage*)((unsigned long long)m_nodeRef &amp; ~1)
+      </Item>
+      <Item Name="Leaf" Condition="index() == 1">
+        *(rrt::Leaf*)m_nodeRef
+      </Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
