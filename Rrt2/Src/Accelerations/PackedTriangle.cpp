@@ -37,6 +37,7 @@ namespace rrt
             const std::uint32_t primId = primRef.primId;
             Set(i, mesh.GetPrimitiveAt(primId), primId, geomId);
         }
+        start = end;
     }
 
     std::optional<HitRecord> PackedTriangle::Hit(const PackedRay& packedRay,
