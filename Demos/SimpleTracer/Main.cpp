@@ -20,7 +20,7 @@ int main()
                           .far = 1000.0f,
                           .fov = std::numbers::pi_v<float> / 4.0f,
                       },
-                      glm::identity<glm::mat4>(),
+                      glm::translate(glm::identity<glm::mat4>(), glm::vec3{-278.0f, -273.0f, 2000.0f}),
                       FilmSize{.width = kFilmWidth, .height = kFilmHeight}};
     pcg32_random_t randState;
     pcg32_srandom_r(&randState, std::time(0), (intptr_t)&randState);
