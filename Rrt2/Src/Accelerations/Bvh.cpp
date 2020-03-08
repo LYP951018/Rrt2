@@ -109,18 +109,19 @@ namespace rrt
             }
             else if (childPrims[i].size() <= kMaxSimdWidth)
             {
+                const gsl::span<const PrimRefStorage> childPrim = childPrims[i];
                 Leaf* const leaf = new Leaf;
                 const std::uint32_t simdRequired = PackedTriangle::GetSimdCount(
-                    static_cast<std::uint32_t>(prims.size()));
+                    static_cast<std::uint32_t>(childPrim.size()));
                 leaf->primitives.reserve(simdRequired);
                 std::uint32_t start = 0;
-                std::uint32_t end = static_cast<std::uint32_t>(prims.size());
-                for (std::uint32_t i = 0; i < simdRequired && start < end; ++i)
+                std::uint32_t end = static_cast<std::uint32_t>(childPrim.size());
+                for (std::uint32_t j = 0; j < simdRequired && start < end; ++j)
                 {
                     // PackedTriangle triangle;
                     PackedTriangleStorage& triangle =
                         leaf->primitives.emplace_back();
-                    triangle.Fill(prims.data(), start, end, m_scene);
+                    triangle.Fill(childPrim.data(), start, end, m_scene);
                 }
                 interiorNode->children[i] = NodeRef{leaf};
             }
