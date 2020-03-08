@@ -53,6 +53,8 @@ namespace rrt
         m_root = Build(root, gsl::make_span(primRefs));
     }
 
+    constexpr std::uint32_t kMaxLeafWidth = 4;
+
     NodeRef VECTORCALL Bvh::Build(PrimInfo primInfo,
                                   gsl::span<PrimRefStorage> prims)
     {
@@ -107,7 +109,7 @@ namespace rrt
                 // this would create a childrenBox with inf, -inf
                 // which would never be hit off
             }
-            else if (childPrims[i].size() <= kMaxSimdWidth)
+            else if (childPrims[i].size() <= kMaxLeafWidth)
             {
                 const gsl::span<const PrimRefStorage> childPrim = childPrims[i];
                 Leaf* const leaf = new Leaf;
