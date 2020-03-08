@@ -4,10 +4,10 @@ cmake_minimum_required(VERSION 3.15.0)
 add_library(Rrt2 STATIC)
 
 file(GLOB_RECURSE RRT2_SRCS ./Src/*.cpp)
-
 file(GLOB_RECURSE RRT2_HAEDERS ./Include/*.hpp)
+set(NATVIS_FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Natvis/Rrt2.natvis)
 
-target_sources(Rrt2 PRIVATE ${RRT2_SRCS} ${RRT2_HAEDERS})
+target_sources(Rrt2 PRIVATE ${RRT2_SRCS} ${RRT2_HAEDERS} ${NATVIS_FILE_PATH})
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Src FILES ${RRT2_SRCS})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Include FILES ${RRT2_EXPORT_HAEDERS})
