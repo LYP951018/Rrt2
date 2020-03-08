@@ -51,7 +51,7 @@ int main()
                 const Ray& ray = rays[i * kFilmWidth * kSamplesPerPixel +
                                       j * kSamplesPerPixel + k];
                 const std::optional<HitRecord> hitRecord =
-                    mainScene->Trace(ray, 0.0f, 10.0f);
+                    mainScene->Trace(ray, 0.0f, 200000.0f);
                 if (hitRecord)
                 {
                     color += Vec3f{1.0f, 1.0f, 1.0f};
