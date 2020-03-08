@@ -47,9 +47,9 @@ namespace rrt
         std::vector<glm::vec2> pixelPoses(samplesPerPixel);
         std::uint32_t samplesPerPixelWidth =
             static_cast<std::uint32_t>(std::sqrt(samplesPerPixel));
-        for (std::uint32_t w = 0; w < filmWidth; ++w)
+        for (std::uint32_t h = 0; h < filmHeight; ++h)
         {
-            for (std::uint32_t h = 0; h < filmHeight; ++h)
+            for (std::uint32_t w = 0; w < filmWidth; ++w)
             {
                 Jitter(state, gsl::make_span(pixelPoses));
                 for (std::uint32_t i = 0; i < samplesPerPixel; ++i)
