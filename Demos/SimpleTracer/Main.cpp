@@ -69,6 +69,6 @@ int main()
     }
     const int writtenResult =
         stbi_write_png(".\\result.png", kFilmWidth, kFilmHeight, 4,
-                       pixels.data(), kFilmWidth * kSamplesPerPixel);
+                       pixels.data(), kFilmWidth * 4);
     assert(writtenResult != 0);
 }
