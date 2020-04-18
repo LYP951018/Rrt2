@@ -40,7 +40,7 @@ namespace rrt
         start = end;
     }
 
-    std::optional<HitRecord> PackedTriangle::Hit(const PackedRay& packedRay,
+    std::optional<SurfaceInteraction> PackedTriangle::Hit(const PackedRay& packedRay,
                                                  const Ray& ray, float tMin,
                                                  float tMax) const
     {
@@ -86,7 +86,7 @@ namespace rrt
         assert(index != sizeof(mask) * 8);
         const std::uint32_t geomId = geomIds[index];
         const std::uint32_t primId = primIds[index];
-        HitRecord record;
+        SurfaceInteraction record;
         record.geomId = geomId;
         record.primId = primId;
         record.t = First(minT);

@@ -9,15 +9,15 @@ namespace rrt
 {
     ZeroAcceleration::ZeroAcceleration(const Scene* scene) : m_scene{scene} {}
 
-    std::optional<HitRecord> ZeroAcceleration::Hit(const Ray& ray, float tMin,
+    std::optional<SurfaceInteraction> ZeroAcceleration::Hit(const Ray& ray, float tMin,
                                                    float tMax)
     {
         const PackedRay packedRay{ray};
-        std::optional<HitRecord> hitRecord;
+        std::optional<SurfaceInteraction> hitRecord;
         for (const PackedTriangleStorage& triangleStorage : m_packedTriangles)
         {
             const PackedTriangle packedTriangle = triangleStorage.Load();
-            const std::optional<HitRecord> childRecord =
+            const std::optional<SurfaceInteraction> childRecord =
                 packedTriangle.Hit(packedRay, ray, tMin, tMax);
             if (!childRecord)
                 continue;

@@ -23,10 +23,10 @@ TEST_CASE("Bvh with multi levels", "[Bvh]")
     Ray ray;
     ray.origin = glm::vec3(-3.087f, 1.2416f, 0.0f);
     ray.speed = glm::vec3(0.0f, 0.0f, 1.0f);
-    const std::optional<HitRecord> record =
+    const std::optional<SurfaceInteraction> record =
         scene->Trace(ray, 0.0f, 10.0f);
     CHECK(record.has_value());
-    const HitRecord& rec = record.value();
+    const SurfaceInteraction& rec = record.value();
    // CHECK(rec.primId == 1);
     CHECK(rec.geomId == 3);
 }

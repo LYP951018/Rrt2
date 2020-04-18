@@ -12,7 +12,7 @@ namespace rrt
         m_acceleration = std::make_unique<Bvh>(this);
     }
 
-    std::optional<HitRecord> Scene::Trace(const Ray& ray, float tMin, float tMax)
+    std::optional<SurfaceInteraction> Scene::Trace(const Ray& ray, float tMin, float tMax)
     {
         return m_acceleration->Hit(ray, tMin, tMax);
     }

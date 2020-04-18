@@ -10,7 +10,7 @@
 ////ray.GetOrigin() + t * ray.GetSpeed() = m_positions[0] + β(m_positions[1] - m_positions[0]) +
 ///γ(m_positions[2] - m_positions[0])
 ////https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
-// std::optional<HitRecord> TriangleMesh::Hit(const Ray & ray, float tMin, float tMax)
+// std::optional<SurfaceInteraction> TriangleMesh::Hit(const Ray & ray, float tMin, float tMax)
 //{
 //#if defined(ENABLE_SIMD)
 //
@@ -34,5 +34,5 @@
 //#else
 //	assert(false);
 //#endif
-//	return std::optional<HitRecord>();
+//	return std::optional<SurfaceInteraction>();
 //}

@@ -31,7 +31,7 @@ namespace rrt
 
     Bvh::Bvh(const Scene* scene) : m_scene{scene} {}
 
-    std::optional<HitRecord> Bvh::Hit(const Ray& ray, float tMin, float tMax)
+    std::optional<SurfaceInteraction> Bvh::Hit(const Ray& ray, float tMin, float tMax)
     {
         const PackedRay packedRay{ray};
         return m_root.Hit(packedRay, ray, tMin, tMax);
@@ -326,7 +326,7 @@ namespace rrt
 
     NodeRef::NodeRef() : m_nodeRef{} {}
 
-    std::optional<HitRecord> NodeRef::Hit(const PackedRay& packedRay,
+    std::optional<SurfaceInteraction> NodeRef::Hit(const PackedRay& packedRay,
                                           const Ray& ray, float tMin,
                                           float tMax) const
     {
@@ -349,7 +349,7 @@ namespace rrt
             reinterpret_cast<const Leaf*>(GetPtr())->primitives);
     }
 
-    std::optional<HitRecord>
+    std::optional<SurfaceInteraction>
     InteriorNodeStorage::Hit(const PackedRay& packedRay, const Ray& ray,
                              float tMin, float tMax) const
     {
@@ -365,7 +365,7 @@ namespace rrt
         }
 
         // slow path for multi boxes
-        std::optional<HitRecord> hitRecord;
+        std::optional<SurfaceInteraction> hitRecord;
         for (;;)
         {
             unsigned long index = std::countr_zero(hitMask);
@@ -374,7 +374,7 @@ namespace rrt
                 break;
             }
             hitMask &= (hitMask - 1);
-            const std::optional<HitRecord> childRecord =
+            const std::optional<SurfaceInteraction> childRecord =
                 children[index].Hit(packedRay, ray, tMin, tMax);
             if (!childRecord)
                 continue;
@@ -394,15 +394,15 @@ namespace rrt
         }
     }
 
-    std::optional<HitRecord> Leaf::Hit(const PackedRay& packedRay,
+    std::optional<SurfaceInteraction> Leaf::Hit(const PackedRay& packedRay,
                                        const Ray& ray, float tMin,
                                        float tMax) const
     {
-        std::optional<HitRecord> hitRecord;
+        std::optional<SurfaceInteraction> hitRecord;
         for (const PackedTriangleStorage& triangleStorage : primitives)
         {
             const PackedTriangle packedTriangle = triangleStorage.Load();
-            const std::optional<HitRecord> childRecord =
+            const std::optional<SurfaceInteraction> childRecord =
                 packedTriangle.Hit(packedRay, ray, tMin, tMax);
             if (!childRecord)
                 continue;

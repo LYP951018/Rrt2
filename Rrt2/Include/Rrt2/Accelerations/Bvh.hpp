@@ -43,7 +43,7 @@ namespace rrt
             // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
         }
 
-        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
                                      float tMax) const;
 
         const InteriorNodeStorage* GetInteriorNode() const
@@ -72,7 +72,7 @@ namespace rrt
         NodeRef children[4];
 
         InteriorNodeStorage() { Clear(); }
-        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
                                      float tMax) const;
 
         void Clear();
@@ -83,7 +83,7 @@ namespace rrt
         // FIXME: static_vector or something
         AlignedVec<PackedTriangleStorage> primitives;
 
-        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
                                      float tMax) const;
     };
 
@@ -121,7 +121,7 @@ namespace rrt
         inline static constexpr std::uint32_t kMaxDepth = 16;
 
         Bvh(const Scene* scene);
-        std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) override;
+        std::optional<SurfaceInteraction> Hit(const Ray& ray, float tMin, float tMax) override;
         void Build() override;
 
       private:

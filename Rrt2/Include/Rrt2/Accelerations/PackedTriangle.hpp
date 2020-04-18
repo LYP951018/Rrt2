@@ -32,7 +32,7 @@ namespace rrt
         }
         static std::uint32_t GetCapacity() { return kMaxSimdWidth; }
 
-        std::optional<HitRecord> Hit(const PackedRay& packedRay, const Ray& ray,
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray,
                                      float tMin, float tMax) const;
     };
 

@@ -17,7 +17,7 @@ namespace rrt
       public:
         Scene();
         auto Trace(const Ray& ray, float tMin, float tMax)
-            -> std::optional<HitRecord>;
+            -> std::optional<SurfaceInteraction>;
         const GeometryBase* GetGeometryAt(std::uint32_t i) const;
         const std::vector<std::unique_ptr<GeometryBase>>& GetGeometries() const
         {

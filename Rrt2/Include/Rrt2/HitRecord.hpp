@@ -6,7 +6,7 @@ namespace rrt
 {
     class GeometryBase;
 
-    struct HitRecord
+    struct SurfaceInteraction
     {
         Vec3f position;
         Vec3f normal;

@@ -14,7 +14,7 @@ namespace rrt
     class GeometryBase
     {
       public:
-        // virtual std::optional<HitRecord> Hit(const Ray& ray, float tMin, float tMax) = 0;
+        // virtual std::optional<SurfaceInteraction> Hit(const Ray& ray, float tMin, float tMax) = 0;
         // virtual const BoundingBox& GetBoundingBox() const = 0;
         virtual ~GeometryBase();
         virtual void FillPrimitiveArray(AlignedVec<PrimRefStorage>& prims) const = 0;
