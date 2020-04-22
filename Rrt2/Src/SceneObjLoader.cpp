@@ -8,6 +8,11 @@
 
 namespace rrt
 {
+    static Vec3f aiVecToRrtVec(const aiVector3D& vec3)
+    {
+        return Vec3f{vec3.x, vec3.y, vec3.z};
+    }
+
     std::unique_ptr<TriangleMesh> MeshFromShape(const aiMesh& assimpMesh)
     {
         gsl::span<const aiFace> modelFaces =
@@ -32,12 +37,21 @@ namespace rrt
 
         for (const aiVector3D& modelVertex : modelVertices)
         {
-            meshVertices.push_back(
-                Vec3f{modelVertex.x, modelVertex.y, modelVertex.z});
+            meshVertices.push_back(aiVecToRrtVec(modelVertex));
+        }
+
+        std::vector<Vec3f> meshNormals;
+        gsl::span<const aiVector3D> modelNormals =
+            gsl::make_span(assimpMesh.mNormals, assimpMesh.mNumVertices);
+
+        for (const aiVector3D& modelNormal : modelNormals)
+        {
+            meshNormals.push_back(aiVecToRrtVec(modelNormal));
         }
 
         std::unique_ptr<TriangleMesh> triangleMesh =
             std::make_unique<TriangleMesh>(std::move(meshVertices),
+                                           std::move(modelNormals),
                                            std::move(meshIndices));
         triangleMesh->SetName(std::string{assimpMesh.mName.C_Str()});
         return triangleMesh;
