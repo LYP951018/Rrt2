@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15.0)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CLANG_DEFAULT_CXX_STDLIB libc++)
 if(POLICY CMP0025)
     cmake_policy(SET CMP0025 NEW)
