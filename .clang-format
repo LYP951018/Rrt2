@@ -16,9 +16,11 @@ BraceWrapping:
     BeforeElse: true
     SplitEmptyRecord: false
 Cpp11BracedListStyle: true
+AllowAllConstructorInitializersOnNextLine : true
+ConstructorInitializerAllOnOneLineOrOnePerLine : true
 NamespaceIndentation: All
 SpaceAfterTemplateKeyword: false
-Standard: Cpp11
+Standard: c++20
 AllowAllParametersOfDeclarationOnNextLine : true
 SortIncludes: false
 AlwaysBreakTemplateDeclarations: true
