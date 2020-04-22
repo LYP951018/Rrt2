@@ -32,7 +32,7 @@ namespace rrt
 
     Bvh::Bvh(const Scene* scene) : m_scene{scene} {}
 
-    std::optional<SurfaceInteraction> Bvh::Hit(const Ray& ray, float tMin, float tMax)
+    std::optional<SurfaceInteraction> Bvh::Hit(const Ray& ray)
     {
         const PackedRay packedRay{ray};
         std::optional<SurfaceInteraction> interaction = m_root.Hit(packedRay);

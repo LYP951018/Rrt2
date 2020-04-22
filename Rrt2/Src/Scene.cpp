@@ -12,9 +12,9 @@ namespace rrt
         m_acceleration = std::make_unique<Bvh>(this);
     }
 
-    std::optional<SurfaceInteraction> Scene::Trace(const Ray& ray, float tMin, float tMax)
+    std::optional<SurfaceInteraction> Scene::Trace(const Ray& ray)
     {
-        return m_acceleration->Hit(ray, tMin, tMax);
+        return m_acceleration->Hit(ray);
     }
 
     const GeometryBase* Scene::GetGeometryAt(std::uint32_t i) const { return m_geometries[i].get(); }

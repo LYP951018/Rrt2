@@ -118,7 +118,7 @@ namespace rrt
         inline static constexpr std::uint32_t kMaxDepth = 16;
 
         Bvh(const Scene* scene);
-        std::optional<SurfaceInteraction> Hit(const Ray& ray, float tMin, float tMax) override;
+        std::optional<SurfaceInteraction> Hit(const Ray& ray) override;
         void Build() override;
 
       private:
