@@ -17,5 +17,6 @@ namespace rrt
         negSpeed = {ray.speed[0] < 0.0f, ray.speed[1] < 0.0f,
                     ray.speed[2] < 0.0f};
         invSpeed = Rcp(speed);
+        maxTime = MakeFloats(ray.maxTime);
     }
 }

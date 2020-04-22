@@ -34,7 +34,7 @@ namespace rrt
     std::optional<SurfaceInteraction> Bvh::Hit(const Ray& ray, float tMin, float tMax)
     {
         const PackedRay packedRay{ray};
-        return m_root.Hit(packedRay, ray, tMin, tMax);
+        return m_root.Hit(packedRay);
     }
 
     void Bvh::Build()
@@ -326,16 +326,14 @@ namespace rrt
 
     NodeRef::NodeRef() : m_nodeRef{} {}
 
-    std::optional<SurfaceInteraction> NodeRef::Hit(const PackedRay& packedRay,
-                                          const Ray& ray, float tMin,
-                                          float tMax) const
+    std::optional<SurfaceInteraction> NodeRef::Hit(const PackedRay& packedRay) const
     {
         switch (GetKind())
         {
         case Kind::kNode:
-            return GetInteriorNode()->Hit(packedRay, ray, tMin, tMax);
+            return GetInteriorNode()->Hit(packedRay);
         case Kind::kLeaf:
-            return GetLeaf()->Hit(packedRay, ray, tMin, tMax);
+            return GetLeaf()->Hit(packedRay);
         default:
             assert(false);
             break;
@@ -350,10 +348,9 @@ namespace rrt
     }
 
     std::optional<SurfaceInteraction>
-    InteriorNodeStorage::Hit(const PackedRay& packedRay, const Ray& ray,
-                             float tMin, float tMax) const
+    InteriorNodeStorage::Hit(const PackedRay& packedRay) const
     {
-        std::uint32_t hitMask = childrenBoxes.Load().Hit(packedRay, tMin, tMax);
+        std::uint32_t hitMask = childrenBoxes.Load().Hit(packedRay);
         if (hitMask == 0)
             return std::nullopt;
 
@@ -361,7 +358,7 @@ namespace rrt
         if ((hitMask & (hitMask - 1)) == 0)
         {
             const int hitIndex = std::countr_zero(hitMask);
-            return children[hitIndex].Hit(packedRay, ray, tMin, tMax);
+            return children[hitIndex].Hit(packedRay);
         }
 
         // slow path for multi boxes
@@ -375,10 +372,10 @@ namespace rrt
             }
             hitMask &= (hitMask - 1);
             const std::optional<SurfaceInteraction> childRecord =
-                children[index].Hit(packedRay, ray, tMin, tMax);
+                children[index].Hit(packedRay);
             if (!childRecord)
                 continue;
-            if (!hitRecord || hitRecord.value().t > childRecord.value().t)
+            if (!hitRecord || hitRecord.value().time > childRecord.value().time)
                 hitRecord = childRecord;
         }
         return hitRecord;
@@ -394,19 +391,17 @@ namespace rrt
         }
     }
 
-    std::optional<SurfaceInteraction> Leaf::Hit(const PackedRay& packedRay,
-                                       const Ray& ray, float tMin,
-                                       float tMax) const
+    std::optional<SurfaceInteraction> Leaf::Hit(const PackedRay& packedRay) const
     {
         std::optional<SurfaceInteraction> hitRecord;
         for (const PackedTriangleStorage& triangleStorage : primitives)
         {
             const PackedTriangle packedTriangle = triangleStorage.Load();
             const std::optional<SurfaceInteraction> childRecord =
-                packedTriangle.Hit(packedRay, ray, tMin, tMax);
+                packedTriangle.Hit(packedRay);
             if (!childRecord)
                 continue;
-            if (!hitRecord || hitRecord.value().t > childRecord.value().t)
+            if (!hitRecord || hitRecord.value().time > childRecord.value().time)
                 hitRecord = childRecord;
         }
         return hitRecord;

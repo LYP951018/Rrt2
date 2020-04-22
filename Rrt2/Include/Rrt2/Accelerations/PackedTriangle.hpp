@@ -32,8 +32,7 @@ namespace rrt
         }
         static std::uint32_t GetCapacity() { return kMaxSimdWidth; }
 
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray,
-                                     float tMin, float tMax) const;
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
     };
 
     struct alignas(kSimdAlignment) PackedTriangleStorage

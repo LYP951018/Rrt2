@@ -15,7 +15,7 @@ namespace rrt
         Vec3fPacked lower;
         Vec3fPacked upper;
 
-        std::uint32_t Hit(const PackedRay& ray, float tMin, float tMax) const;
+        std::uint32_t Hit(const PackedRay& ray) const;
 
       private:
         const Vec3fPacked& Get(std::size_t n) const;
@@ -35,6 +35,6 @@ namespace rrt
             };
         }
 
-        void Set(std::uint32_t i, const BoundingBoxStorage& bbox);\
+        void Set(std::uint32_t i, const BoundingBoxStorage& bbox);
     };
 }

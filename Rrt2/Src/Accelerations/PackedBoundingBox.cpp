@@ -7,7 +7,7 @@
 namespace rrt
 {
     // https://tavianator.com/fast-branchless-raybounding-box-intersections-part-2-nans/
-    std::uint32_t PackedBoundingBox::Hit(const PackedRay& ray, float tMin, float tMax) const
+    std::uint32_t PackedBoundingBox::Hit(const PackedRay& ray) const
     {
         //第一个索引：在平行的两个面中选一个
         //第二个索引：x, y, z
@@ -25,8 +25,7 @@ namespace rrt
             t0Min = Max(t0Min, t0);
             t1Max = Min(t1Max, t1);
         }
-        t0Min = Max(t0Min, MakeFloats(tMin));
-        t1Max = Min(t1Max, MakeFloats(tMax));
+        t1Max = Min(t1Max, ray.maxTime);
         const int mask = Msbs(LessEq(t0Min, t1Max));
         return static_cast<std::uint32_t>(mask);
     }

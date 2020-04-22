@@ -43,8 +43,7 @@ namespace rrt
             // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
         }
 
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
-                                     float tMax) const;
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
 
         const InteriorNodeStorage* GetInteriorNode() const
         {
@@ -72,8 +71,7 @@ namespace rrt
         NodeRef children[4];
 
         InteriorNodeStorage() { Clear(); }
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
-                                     float tMax) const;
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
 
         void Clear();
     };
@@ -83,8 +81,7 @@ namespace rrt
         // FIXME: static_vector or something
         AlignedVec<PackedTriangleStorage> primitives;
 
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay, const Ray& ray, float tMin,
-                                     float tMax) const;
+        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
     };
 
     class PrimRefStorage;

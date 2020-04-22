@@ -4,6 +4,7 @@
 #include "Vec3.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include "Simd.hpp"
+#include "MathBasics.hpp"
 
 namespace rrt
 {
@@ -23,13 +24,22 @@ namespace rrt
     {
       public:
         glm::vec3 origin;
-        float _padding1;
+        float maxTime;
         glm::vec3 speed;
         float _padding2;
 
-        inline void Load(SimdRay& loadedRay) const
+        Ray(const glm::vec3& origin_, const glm::vec3& speed_,
+            float maxTime_ = kInf)
+            : origin{origin_}, maxTime{maxTime_}, speed{speed_}, _padding2{0.0f}
+        {}
+
+        void Load(SimdRay& loadedRay) const
         {
-            loadedRay.origin = FloatsFromAlignedMemory(glm::value_ptr(origin));
+            const int AllOneMask = -1;
+            const Float4 mask =
+                AsFloats(MakeInts(AllOneMask, AllOneMask, AllOneMask, 0));
+            loadedRay.origin =
+                And(mask, FloatsFromAlignedMemory(glm::value_ptr(origin)));
             loadedRay.speed = FloatsFromAlignedMemory(glm::value_ptr(speed));
         }
     };

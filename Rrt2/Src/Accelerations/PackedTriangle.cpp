@@ -40,12 +40,26 @@ namespace rrt
         start = end;
     }
 
-    std::optional<SurfaceInteraction> PackedTriangle::Hit(const PackedRay& packedRay,
-                                                 const Ray& ray, float tMin,
-                                                 float tMax) const
+    // 参考 https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
+    // https://cadxfem.org/inf/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+    // O：光线原点
+    // A、B、C：三角形的三个顶点
+    // D：光线的方向
+    // T = O - A
+    // E_1 = B - A
+    // E_2 = C - A
+    // P = D cross E_2
+    // Q = T cross E_1
+    /* 1 / (P dot E_1) \matrix{Q dot E_2 \\ P dot T \\ Q dot D}  */
+    std::optional<SurfaceInteraction>
+    PackedTriangle::Hit(const PackedRay& packedRay) const
     {
+        // P
         const Vec3fPacked pVec = Cross3(packedRay.speed, e2);
         // FIXME: det == 0
+        // if the determinant is negative the triangle is backfacing
+        // if the determinant is close to 0, the ray misses the triangle
+        // ray and triangle are parallel if det is close to 0
         const PackedFloats det = Dot3(e1, pVec);
         const Vec3fPacked tVec = packedRay.origin - v0;
         const Vec3fPacked qVec = Cross3(tVec, e1);
@@ -61,6 +75,9 @@ namespace rrt
             const PackedFloats lessThanOne = LessEq(floats, MakeFloats(1.0f));
             return And(lessThanOne, biggerThanZero);
         };
+        // u >= 0 && u <= 1
+        // v >= 0
+        // u + 1 <= 1 => v <= 1
         const PackedFloats vMask =
             And(GreaterEq(v, ZeroFloats()), LessEq(Add(u, v), MakeFloats(1.0f)));
         const PackedFloats uvMask = And(inRange(u), vMask);
@@ -86,14 +103,11 @@ namespace rrt
         assert(index != sizeof(mask) * 8);
         const std::uint32_t geomId = geomIds[index];
         const std::uint32_t primId = primIds[index];
-        SurfaceInteraction record;
-        record.geomId = geomId;
-        record.primId = primId;
-        record.t = First(minT);
-        SimdRay simdRay;
-        ray.Load(simdRay);
-        Store(simdRay.At(record.t), &record.position.x);
-        return record;
+        SurfaceInteraction interaction;
+        interaction.geomId = geomId;
+        interaction.primId = primId;
+        interaction.time = First(minT);
+        return interaction;
     }
 
 } // namespace rrt

@@ -13,6 +13,7 @@ namespace rrt
         Vec3fPacked speed;
         Vec3T<std::uint32_t> negSpeed;
         Vec3fPacked invSpeed;
+        Float4 maxTime;
 
         PackedRay(const Ray& ray);
     };
