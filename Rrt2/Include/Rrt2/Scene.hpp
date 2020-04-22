@@ -26,6 +26,13 @@ namespace rrt
         void AddTriangleMesh(std::unique_ptr<TriangleMesh> geometry);
         std::uint32_t GetAvailableGeomId() const;
         void Ready();
+        template<typename TGeometry>
+        const TGeometry* GetGeometryAs(std::uint32_t geomId) const
+        {
+            const GeometryBase* geometry = m_geometries[geomId].get();
+            assert(dynamic_cast<const TGeometry*>(geometry) != nullptr);
+            return (const TGeometry*)geometry;
+        }
 
       private:
         mutable pcg32_random_t m_randState;

@@ -5,6 +5,7 @@
 #include "Rrt2/BoundingBox.hpp"
 #include "Rrt2/Accelerations/PackedRay.hpp"
 #include "Rrt2/MathBasics.hpp"
+#include "Rrt2/Geometries/TriangleMesh.hpp"
 #include <array>
 #include <gsl/span>
 #include <numeric>
@@ -34,7 +35,32 @@ namespace rrt
     std::optional<SurfaceInteraction> Bvh::Hit(const Ray& ray, float tMin, float tMax)
     {
         const PackedRay packedRay{ray};
-        return m_root.Hit(packedRay);
+        std::optional<SurfaceInteraction> interaction = m_root.Hit(packedRay);
+        if (!interaction)
+        {
+            return std::nullopt;
+        }
+        Postprocess(*interaction);
+        return interaction;
+    }
+
+    void Bvh::Postprocess(SurfaceInteraction& interaction) const
+    {
+        const TriangleMesh* geometry =
+            m_scene->GetGeometryAs<TriangleMesh>(interaction.geomId);
+        const std::span<const Vec3f> normals = geometry->GetNormals();
+        const std::uint32_t primId = interaction.primId;
+        const Float4 n0 =
+            FloatsFromMemory((const float*)(normals.data() + primId * 3));
+        const Float4 n1 =
+            FloatsFromMemory((const float*)(normals.data() + primId * 3 + 1));
+        const Float4 n2 =
+            FloatsFromMemory((const float*)(normals.data() + primId * 3 + 2));
+        float u = interaction.triangleUV.x;
+        float v = interaction.triangleUV.y;
+        const Float4 normalFloats =
+            Add(Add(Scale(n0, 1 - u - v), Scale(n1, u)), Scale(n2, v));
+        Store(normalFloats, glm::value_ptr(interaction.normal));
     }
 
     void Bvh::Build()

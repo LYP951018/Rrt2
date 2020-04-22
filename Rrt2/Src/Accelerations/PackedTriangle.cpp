@@ -45,6 +45,7 @@ namespace rrt
     // O：光线原点
     // A、B、C：三角形的三个顶点
     // D：光线的方向
+    // O + tD = (1 − u − v) V_0 + uV_1 + vV_2
     // T = O - A
     // E_1 = B - A
     // E_2 = C - A
@@ -101,12 +102,16 @@ namespace rrt
         // index = 0
         const int index = std::countr_zero(mask);
         assert(index != sizeof(mask) * 8);
+        glm::vec4 usStorage, vsStorage;
+        StoreStorage(u, usStorage);
+        StoreStorage(v, vsStorage);
         const std::uint32_t geomId = geomIds[index];
         const std::uint32_t primId = primIds[index];
         SurfaceInteraction interaction;
         interaction.geomId = geomId;
         interaction.primId = primId;
         interaction.time = First(minT);
+        interaction.triangleUV = glm::vec2(usStorage[index], vsStorage[index]);
         return interaction;
     }
 

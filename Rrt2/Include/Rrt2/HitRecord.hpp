@@ -17,8 +17,11 @@ namespace rrt
         // 如果在 T1 就计算了 position，这个计算就是多余的了。
         // Vec3f position;
         Vec3f normal;
+        float _padding1;
         // 出射光线的方向，与命中物体时光的方向相反。
         Vec3f wo;
+        // barycentric coord
+        glm::vec2 triangleUV;
         float time;
         std::uint32_t primId;
         std::uint32_t geomId;

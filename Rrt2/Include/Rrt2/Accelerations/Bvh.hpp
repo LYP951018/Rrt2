@@ -127,7 +127,8 @@ namespace rrt
         BinSplit VECTORCALL Split(PrimInfo primInfo,
                                   gsl::span<PrimRefStorage> prims,
                                   PrimInfo& leftInfo, PrimInfo& rightInfo);
-
+        // setup normals
+        void Postprocess(SurfaceInteraction& interaction) const;
         const Scene* m_scene;
         NodeRef m_root;
         BoundingBoxStorage m_rootBox;
