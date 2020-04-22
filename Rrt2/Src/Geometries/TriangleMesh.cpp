@@ -19,7 +19,7 @@ namespace rrt
           // TODO: 要不要这里让每个 position alignas(16)？
           // struct alignas(16) Vec3f : glm::vec3 {};
           m_positions{CreateVertices(verticesCount + 1)},
-          m_normals{CreateVertices(verticesCount)},
+          m_normals{CreateVertices(verticesCount + 1)},
           m_tangents{CreateVertices(verticesCount)},
           m_indices{std::move(indices)}
     {
