@@ -37,4 +37,6 @@
 
 #if _MSC_VER
 #define RRT_UNREACHABLE __assume(0)
+#else
+#define RRT_UNREACHABLE __builtin_unreachable()
 #endif
