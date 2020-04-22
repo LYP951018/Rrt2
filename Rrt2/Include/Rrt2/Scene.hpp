@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <pcg_variants.h>
-#include <gsl/span>
 #include "Accelerations/AccelerationBase.hpp"
 #include <vector>
 #include <optional>
