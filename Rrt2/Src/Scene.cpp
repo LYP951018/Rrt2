@@ -17,7 +17,10 @@ namespace rrt
         return m_acceleration->Hit(ray);
     }
 
-    const GeometryBase* Scene::GetGeometryAt(std::uint32_t i) const { return m_geometries[i].get(); }
+    const GeometryBase* Scene::GetGeometryAt(std::uint32_t i) const
+    {
+        return m_geometries[i].get();
+    }
 
     void Scene::AddTriangleMesh(std::unique_ptr<TriangleMesh> geometry)
     {
@@ -31,5 +34,4 @@ namespace rrt
     }
 
     void Scene::Ready() { m_acceleration->Build(); }
-}
-
+} // namespace rrt
