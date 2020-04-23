@@ -15,7 +15,7 @@ namespace rrt
         // 也可能有三角形 T2 和光线交叉于 t_2 
         // 并且 t_2 < t_1
         // 如果在 T1 就计算了 position，这个计算就是多余的了。
-        // Vec3f position;
+        Vec3f position;
         Vec3f normal;
         float _padding1;
         // 出射光线的方向，与命中物体时光的方向相反。
@@ -32,6 +32,7 @@ namespace rrt
         // Vec3f pError;
 
         Ray SpawnRay(const Vec3f& dir) const;
+        Ray SpawnRayTo(const Vec3f& dst) const;
         Vec3f GetHitPos(const Ray& ray) const;
     };
 }
