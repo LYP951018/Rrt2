@@ -47,7 +47,7 @@ namespace rrt
             float pdf = 0.0f;
             Spectrum sampledSpectrum = SampledEval(wo, wi, sample, pdf);
             if (pdf > 0.0f)
-                spectrum += sampledSpectrum;
+                spectrum += sampledSpectrum * AbsCosTheta(wi) / pdf;
         }
         return spectrum / (float)samples.size();
     }
