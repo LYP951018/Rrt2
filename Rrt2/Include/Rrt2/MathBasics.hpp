@@ -9,6 +9,7 @@
 namespace rrt
 {
     inline constexpr float kPi = 3.14159265358979323846f;
+    inline constexpr float kInvPi = 1.0f / kPi;
     inline constexpr float kNegInf = -INFINITY;
     inline constexpr float kInf = INFINITY;
 
