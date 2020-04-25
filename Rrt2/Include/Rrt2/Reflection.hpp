@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <span>
+#include <memory>
 #include <glm/geometric.hpp>
 #include "EnumFlags.hpp"
 #include "Spectrum.hpp"
