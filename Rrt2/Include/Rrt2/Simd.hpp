@@ -383,11 +383,24 @@ namespace rrt
         return AllEqual(value, _mm_setzero_ps());
     }
 
-    inline float SumUpLanes(Float4 value)
+    inline Float4 SumUpLanes(Float4 value)
     {
         const Float4 partial = _mm_hadd_ps(value, value);
         const Float4 sum = _mm_hadd_ps(partial, partial);
-        return First(sum);
+        return sum;
+    }
+
+    inline Float4 GetLength(Float4 value)
+    {
+        const Float4 length2 = SumUpLanes(Mul(value, value));
+        const Float4 length = Sqrt(length2);
+        return length;
+    }
+
+    inline Float4 Normalize(Float4 value)
+    {
+        const Float4 length = GetLength(value);
+        return Div(value, length);
     }
     
     inline Float4 Select(Float4 selector, Float4 v1, Float4 v2)

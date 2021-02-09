@@ -12,7 +12,7 @@ namespace rrt
     {
       public:
         ZeroAcceleration(const Scene* scene);
-        std::optional<SurfaceInteraction> Hit(const Ray& ray, float tMin,
+        std::optional<SurfaceInteraction> Trace(const Ray& ray, float tMin,
                                      float tMax) override;
         void Build() override;
 

@@ -1,7 +1,7 @@
 ﻿IndentWidth: 4
 Language: Cpp
 PointerAlignment: Left
-ColumnLimit: 80
+ColumnLimit: 90
 AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Left
 BreakConstructorInitializers: BeforeColon

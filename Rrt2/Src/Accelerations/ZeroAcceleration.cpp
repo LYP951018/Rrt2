@@ -9,7 +9,7 @@ namespace rrt
 {
     ZeroAcceleration::ZeroAcceleration(const Scene* scene) : m_scene{scene} {}
 
-    std::optional<SurfaceInteraction> ZeroAcceleration::Hit(const Ray& ray, float tMin,
+    std::optional<SurfaceInteraction> ZeroAcceleration::Trace(const Ray& ray, float tMin,
                                                    float tMax)
     {
         const PackedRay packedRay{ray};
@@ -18,7 +18,7 @@ namespace rrt
         {
             const PackedTriangle packedTriangle = triangleStorage.Load();
             const std::optional<SurfaceInteraction> childRecord =
-                packedTriangle.Hit(packedRay, ray, tMin, tMax);
+                packedTriangle.Trace(packedRay, ray, tMin, tMax);
             if (!childRecord)
                 continue;
             if (!hitRecord || hitRecord.value().t > childRecord.value().t)

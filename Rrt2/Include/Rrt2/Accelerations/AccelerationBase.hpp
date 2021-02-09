@@ -10,7 +10,8 @@ namespace rrt
     class AccelerationBase
     {
       public:
-        virtual std::optional<SurfaceInteraction> Hit(const Ray& ray) = 0;
+        virtual std::optional<SurfaceInteraction> Trace(const Ray& ray) = 0;
+        virtual bool Hit(const Ray& ray) = 0;
         virtual ~AccelerationBase();
         virtual void Build() = 0;
     };

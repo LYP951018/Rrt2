@@ -24,14 +24,9 @@ namespace rrt
     {
       public:
         glm::vec3 origin;
-        float maxTime;
+        float maxTime = kInf;
         glm::vec3 speed;
-        float _padding2;
-
-        Ray(const glm::vec3& origin_, const glm::vec3& speed_,
-            float maxTime_ = kInf)
-            : origin{origin_}, maxTime{maxTime_}, speed{speed_}, _padding2{0.0f}
-        {}
+        float _padding2{};
 
         void Load(SimdRay& loadedRay) const
         {

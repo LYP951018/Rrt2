@@ -4,17 +4,21 @@
 
 namespace rrt
 {
-    Spectrum PointLight::GetPower() const
+    Spectrum PointLight::GetPower() const { return 4 * kPi * m_powerPerSolidAngle; }
+
+    auto PointLight::SampleLi(const SurfaceInteraction& ref) const -> SampleLiResult
     {
-        return 4 * kPi * m_powerPerSolidAngle;
+        SampleLiResult result{};
+        const float distance2 = glm::distance2(Vec3f{ref.position}, m_lightPos);
+        result.visibilityTester = VisibilityTester{&m_lightPos, &ref};
+        result.illuminance = m_powerPerSolidAngle / distance2;
+        result.pdf = 1.0f;
+        result.wiWorld = glm::normalize(glm::vec3{ref.position} - m_lightPos);
+        return result;
     }
 
-    Spectrum PointLight::SampleLi(const SurfaceInteraction& interaction,
-                                  VisibilityTester& visibilityTester) const
+    float PointLight::GetPdfForDir(const SurfaceInteraction& start, const Vec3f& dir) const
     {
-        const float distance2 =
-            glm::distance2(interaction.position, m_lightPos);
-        visibilityTester = VisibilityTester{m_lightPos, interaction.position};
-        return m_powerPerSolidAngle / distance2;
+        return 0.0f;
     }
 } // namespace rrt

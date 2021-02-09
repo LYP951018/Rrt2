@@ -7,7 +7,7 @@
 namespace rrt
 {
     // https://tavianator.com/fast-branchless-raybounding-box-intersections-part-2-nans/
-    std::uint32_t PackedBoundingBox::Hit(const PackedRay& ray) const
+    std::uint32_t PackedBoundingBox::Trace(const PackedRay& ray) const
     {
         //第一个索引：在平行的两个面中选一个
         //第二个索引：x, y, z

@@ -43,7 +43,7 @@ namespace rrt
             // return m_leafCount == UINT32_MAX ? kNode : kLeaf;
         }
 
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
+        std::optional<SurfaceInteraction> Trace(const PackedRay& packedRay) const;
 
         const InteriorNodeStorage* GetInteriorNode() const
         {
@@ -71,7 +71,7 @@ namespace rrt
         NodeRef children[4];
 
         InteriorNodeStorage() { Clear(); }
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
+        std::optional<SurfaceInteraction> Trace(const PackedRay& packedRay) const;
 
         void Clear();
     };
@@ -81,7 +81,7 @@ namespace rrt
         // FIXME: static_vector or something
         AlignedVec<PackedTriangleStorage> primitives;
 
-        std::optional<SurfaceInteraction> Hit(const PackedRay& packedRay) const;
+        std::optional<SurfaceInteraction> Trace(const PackedRay& packedRay) const;
     };
 
     class PrimRefStorage;
@@ -118,7 +118,8 @@ namespace rrt
         inline static constexpr std::uint32_t kMaxDepth = 16;
 
         Bvh(const Scene* scene);
-        std::optional<SurfaceInteraction> Hit(const Ray& ray) override;
+        std::optional<SurfaceInteraction> Trace(const Ray& ray) override;
+        bool Hit(const Ray& ray) override;
         void Build() override;
 
       private:
@@ -128,6 +129,7 @@ namespace rrt
                                   gsl::span<PrimRefStorage> prims,
                                   PrimInfo& leftInfo, PrimInfo& rightInfo);
         // setup normals
+        // ...
         void Postprocess(SurfaceInteraction& interaction) const;
         const Scene* m_scene;
         NodeRef m_root;

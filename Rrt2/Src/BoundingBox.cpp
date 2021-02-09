@@ -19,7 +19,7 @@ namespace rrt
     float BoundingBox::GetHalfArea() const
     {
         const Float4 size = GetSize();
-        return SumUpLanes(Mul(size, PermuteFloats<2, 0, 1, 3>(size)));
+        return First(SumUpLanes(Mul(size, PermuteFloats<2, 0, 1, 3>(size))));
     }
 
     void BoundingBox::StoreTo(BoundingBoxStorage& storage) const

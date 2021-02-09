@@ -5,6 +5,7 @@
 
 namespace rrt
 {
+    // FIXME
     template<typename T>
     using AlignedVec = std::pmr::vector<T>;
 }

@@ -8,7 +8,7 @@
 
 using namespace rrt;
 
-TEST_CASE("PackedBoundingBox intersection", "[PackedBoundingBox]")
+TEST_CASE("PackedBoundingBox intersection1", "[PackedBoundingBox]")
 {
     BoundingBoxStorage boxes[4] = {
         BoundingBoxStorage {
@@ -35,7 +35,7 @@ TEST_CASE("PackedBoundingBox intersection", "[PackedBoundingBox]")
     ray.origin = glm::vec4(-1.0f, -1.0f, 1.0f, 0.0f);
     ray.speed = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     PackedRay packed{ray};
-    const int mask = simd.Load().Hit(packed, 0.0f, 10.0f);
+    const int mask = simd.Load().Trace(packed, 0.0f, 10.0f);
     CHECK(mask == 8);
 }
 

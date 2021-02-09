@@ -44,7 +44,6 @@ namespace rrt
 // template<int N>
 // using Vec2fPacked = Vec2T<Floats<N>>;
 
-    using Vec2f = glm::vec2;
     using Vec2fPacked = Vec2T<Floats<kMaxSimdWidth>>;
 
     template<typename T>
@@ -60,9 +59,13 @@ namespace rrt
 
     EXTERN_VEC(Vec3T)
 
+    using Vec2f = glm::vec2;
     using Vec3f = glm::vec3;
+    using Vec4f = glm::vec4;
+    using Vec2i = glm::ivec2;
     using Vec3fPacked = Vec3T<Floats<kMaxSimdWidth>>;
     using Vec3fPackedStorage = Vec3T<glm::vec4>;
+
 
     std::ostream& operator<<(std::ostream& os, const Vec3f& value);
 

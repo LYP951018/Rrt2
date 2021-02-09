@@ -8,7 +8,7 @@
 
 using namespace rrt;
 
-TEST_CASE("Triangle intersection", "[PackedTriangle]")
+TEST_CASE("Triangle intersection1", "[PackedTriangle]")
 {
     SingleTriangle triangles[4] = {
         SingleTriangle{Vec3f{0.0f, 0.0f, 0.0f}, Vec3f{1.0f, 0.0f, 0.0f},
@@ -24,20 +24,45 @@ TEST_CASE("Triangle intersection", "[PackedTriangle]")
     {
         simd.Set(i, triangles[i], i, 0);
     }
-    Ray ray;
-    ray.origin = glm::vec3(-0.5f, 0.5f, 0.5f);
-    ray.speed = glm::vec3(0.0f, 0.0f, -1.0f);
+    Ray ray{glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(0.0f, 0.0f, -1.0f)};
     PackedRay packed{ray};
-    const std::optional<HitRecord> record =
-        simd.Load().Hit(packed, ray, 0.0f, 1.0f);
+    const std::optional<SurfaceInteraction> record = simd.Load().Trace(packed);
     CHECK(record.has_value());
-    const HitRecord& rec = record.value();
+    const SurfaceInteraction& rec = record.value();
     CHECK(rec.primId == 1);
     CHECK(rec.geomId == 0);
     // TODO: check position
 }
 
-TEST_CASE("Triangle mesh FillPrimitiveArray") {
+TEST_CASE("Triangle intersection2", "[PackedTriangle]")
+{
+    SingleTriangle triangles[4] = {
+        SingleTriangle{Vec3f{0.0f, 0.0f, 559.2f}, Vec3f{0.0f, 0.0f, 0.0f},
+                       Vec3f{0.0f, 548.0f, 0.0f}},
+        SingleTriangle{Vec3f{0.0f, 0.0f, 0.0f}, Vec3f{0.0f, 548.0f, 0.0f},
+                       Vec3f{0.0f, 548.8f, 559.2f}},
+        SingleTriangle{Vec3f{549.6f, 0.0f, 559.2f}, Vec3f{0.0f, 0.0f, 559.2f},
+                       Vec3f{0.0f, 548.8f, 559.2f}},
+        SingleTriangle{Vec3f{0.0f, 0.0f, 559.2f}, Vec3f{0.0f, 548.8f, 559.2f},
+                       Vec3f{556.0f, 548.8f, 559.2f}},
+    };
+    PackedTriangleStorage simd;
+    for (std::uint32_t i = 0; i < 4; ++i)
+    {
+        simd.Set(i, triangles[i], i, 0);
+    }
+    Ray ray{glm::vec3(0.0f, 0.0f, -100.0f), glm::vec3(0.2f, 0.2f, 0.9798f)};
+    PackedRay packed{ray};
+    const std::optional<SurfaceInteraction> record = simd.Load().Trace(packed);
+    CHECK(record.has_value());
+    const SurfaceInteraction& rec = record.value();
+    CHECK(rec.primId == 1);
+    CHECK(rec.geomId == 0);
+    // TODO: check position
+}
+
+TEST_CASE("Triangle mesh FillPrimitiveArray")
+{
     std::vector<Vec3f> vertices = {
         Vec3f{552.8f, 0.0f, 0.0f}, Vec3f{0.0f, 0.0f, 0.0f},
         Vec3f{0.0f, 0.0f, 559.2f}, Vec3f{549.6f, 0.0f, 559.2f}};
@@ -60,4 +85,3 @@ TEST_CASE("Triangle mesh FillPrimitiveArray") {
     CHECK(storage1.primId == 1);
     CHECK(storage1.upper == glm::vec3(549.6f, 0.0f, 559.2f));
 }
-

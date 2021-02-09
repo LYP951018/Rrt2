@@ -32,10 +32,10 @@ namespace rrt
 
     Bvh::Bvh(const Scene* scene) : m_scene{scene} {}
 
-    std::optional<SurfaceInteraction> Bvh::Hit(const Ray& ray)
+    std::optional<SurfaceInteraction> Bvh::Trace(const Ray& ray)
     {
         const PackedRay packedRay{ray};
-        std::optional<SurfaceInteraction> interaction = m_root.Hit(packedRay);
+        std::optional<SurfaceInteraction> interaction = m_root.Trace(packedRay);
         if (!interaction)
         {
             return std::nullopt;
@@ -44,23 +44,18 @@ namespace rrt
         return interaction;
     }
 
+    bool Bvh::Hit(const Ray& ray)
+    {
+        // TODO: 只返回 bool 的版本可以在遇到任何 Hit 的时候 early return
+        // 这里暂时是性能劣化的版本
+        return Trace(ray).has_value();
+    }
+
     void Bvh::Postprocess(SurfaceInteraction& interaction) const
     {
         const TriangleMesh* geometry =
             m_scene->GetGeometryAs<TriangleMesh>(interaction.geomId);
-        const std::span<const Vec3f> normals = geometry->GetNormals();
-        const std::uint32_t primId = interaction.primId;
-        const Float4 n0 =
-            FloatsFromMemory((const float*)(normals.data() + primId * 3));
-        const Float4 n1 =
-            FloatsFromMemory((const float*)(normals.data() + primId * 3 + 1));
-        const Float4 n2 =
-            FloatsFromMemory((const float*)(normals.data() + primId * 3 + 2));
-        float u = interaction.triangleUV.x;
-        float v = interaction.triangleUV.y;
-        const Float4 normalFloats =
-            Add(Add(Scale(n0, 1 - u - v), Scale(n1, u)), Scale(n2, v));
-        Store(normalFloats, glm::value_ptr(interaction.normal));
+        geometry->Interpolate(interaction);
     }
 
     void Bvh::Build()
@@ -84,6 +79,12 @@ namespace rrt
     NodeRef VECTORCALL Bvh::Build(PrimInfo primInfo,
                                   gsl::span<PrimRefStorage> prims)
     {
+        //if (prims.size() <= kMaxSimdWidth)
+        //{
+        //    Leaf* leaf = new Leaf();
+        //    for(const PrimRefStorage& primRef)
+        //}
+
         PrimInfo childInfos[4];
         BinSplit split = Split(primInfo, prims, childInfos[0], childInfos[1]);
         childInfos[0] = primInfo;
@@ -220,7 +221,6 @@ namespace rrt
                                    gsl::span<PrimRefStorage> prims,
                                    PrimInfo& leftInfo, PrimInfo& rightInfo)
     {
-
         BinMapping binMapping{primInfo};
         BinInfo binInfo;
 
@@ -352,14 +352,14 @@ namespace rrt
 
     NodeRef::NodeRef() : m_nodeRef{} {}
 
-    std::optional<SurfaceInteraction> NodeRef::Hit(const PackedRay& packedRay) const
+    std::optional<SurfaceInteraction> NodeRef::Trace(const PackedRay& packedRay) const
     {
         switch (GetKind())
         {
         case Kind::kNode:
-            return GetInteriorNode()->Hit(packedRay);
+            return GetInteriorNode()->Trace(packedRay);
         case Kind::kLeaf:
-            return GetLeaf()->Hit(packedRay);
+            return GetLeaf()->Trace(packedRay);
         default:
             assert(false);
             break;
@@ -374,9 +374,9 @@ namespace rrt
     }
 
     std::optional<SurfaceInteraction>
-    InteriorNodeStorage::Hit(const PackedRay& packedRay) const
+    InteriorNodeStorage::Trace(const PackedRay& packedRay) const
     {
-        std::uint32_t hitMask = childrenBoxes.Load().Hit(packedRay);
+        std::uint32_t hitMask = childrenBoxes.Load().Trace(packedRay);
         if (hitMask == 0)
             return std::nullopt;
 
@@ -384,7 +384,7 @@ namespace rrt
         if ((hitMask & (hitMask - 1)) == 0)
         {
             const int hitIndex = std::countr_zero(hitMask);
-            return children[hitIndex].Hit(packedRay);
+            return children[hitIndex].Trace(packedRay);
         }
 
         // slow path for multi boxes
@@ -398,7 +398,7 @@ namespace rrt
             }
             hitMask &= (hitMask - 1);
             const std::optional<SurfaceInteraction> childRecord =
-                children[index].Hit(packedRay);
+                children[index].Trace(packedRay);
             if (!childRecord)
                 continue;
             if (!hitRecord || hitRecord.value().time > childRecord.value().time)
@@ -417,14 +417,14 @@ namespace rrt
         }
     }
 
-    std::optional<SurfaceInteraction> Leaf::Hit(const PackedRay& packedRay) const
+    std::optional<SurfaceInteraction> Leaf::Trace(const PackedRay& packedRay) const
     {
         std::optional<SurfaceInteraction> hitRecord;
         for (const PackedTriangleStorage& triangleStorage : primitives)
         {
             const PackedTriangle packedTriangle = triangleStorage.Load();
             const std::optional<SurfaceInteraction> childRecord =
-                packedTriangle.Hit(packedRay);
+                packedTriangle.Trace(packedRay);
             if (!childRecord)
                 continue;
             if (!hitRecord || hitRecord.value().time > childRecord.value().time)

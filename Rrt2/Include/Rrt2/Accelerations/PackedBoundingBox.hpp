@@ -15,7 +15,7 @@ namespace rrt
         Vec3fPacked lower;
         Vec3fPacked upper;
 
-        std::uint32_t Hit(const PackedRay& ray) const;
+        std::uint32_t Trace(const PackedRay& ray) const;
 
       private:
         const Vec3fPacked& Get(std::size_t n) const;

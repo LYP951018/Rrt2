@@ -7,6 +7,6 @@ namespace rrt
     class TriangleBvh : public AccelerationBase
     {
       public:
-        std::optional<SurfaceInteraction> Hit(const Ray& ray, float tMin, float tMax) override;
+        std::optional<SurfaceInteraction> Trace(const Ray& ray, float tMin, float tMax) override;
     };
 }

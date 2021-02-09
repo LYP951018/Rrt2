@@ -11,10 +11,16 @@
 int main()
 {
     using namespace rrt;
-    constexpr std::uint32_t kFilmWidth = 60;
-    constexpr std::uint32_t kFilmHeight = 60;
+    constexpr std::uint32_t kFilmWidth = 600;
+    constexpr std::uint32_t kFilmHeight = 600;
     constexpr std::uint32_t kSamplesPerPixel = 4;
     const std::unique_ptr<Scene> mainScene = std::make_unique<Scene>();
+    auto viewMatrix = glm::lookAtLH(glm::vec3{ 0.0f, 0.0f, -100.0f },
+        glm::vec3{ 0.0f, 0.0f, 1.0f },
+        glm::vec3{ 0.0f, 1.0f, 0.0f });
+  /*  glm::lookAtLH(glm::vec3{ 0.0f, 0.0f, -100.0f },
+        glm::vec3{ 0.0f, 0.0f, 1.0f },
+        glm::vec3{ 0.0f, 1.0f, 0.0f })*/
     Camera mainCamera{PerspectiveParam{
                           .near = 1.0f,
                           .far = 1000.0f,
@@ -33,7 +39,9 @@ int main()
         Vec3f{0.5f, -0.5f, kTriangleZ}, Vec3f{-0.5f, -0.5f, kTriangleZ}};
 
     std::vector<TriangleIndices> indices = {{0, 1, 2}};*/
-    bool added = AddMeshesFromObj(*mainScene, "./models/cornell_box.obj");
+    bool added = AddMeshesFromObj(*mainScene, "./models/boxonly.obj");
+    //bool added = AddMeshesFromObj(*mainScene, "./models/wallonly.obj");
+
   /*  mainScene->AddTriangleMesh(
         std::make_unique<TriangleMesh>(positions, indices));*/
     assert(added);

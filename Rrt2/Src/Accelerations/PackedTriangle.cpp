@@ -53,7 +53,7 @@ namespace rrt
     // Q = T cross E_1
     /* 1 / (P dot E_1) \matrix{Q dot E_2 \\ P dot T \\ Q dot D}  */
     std::optional<SurfaceInteraction>
-    PackedTriangle::Hit(const PackedRay& packedRay) const
+    PackedTriangle::Trace(const PackedRay& packedRay) const
     {
         // P
         const Vec3fPacked pVec = Cross3(packedRay.speed, e2);

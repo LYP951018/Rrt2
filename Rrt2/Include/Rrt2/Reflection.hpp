@@ -7,6 +7,7 @@
 #include "EnumFlags.hpp"
 #include "Spectrum.hpp"
 #include "Vec3.hpp"
+#include "HitRecord.hpp"
 
 namespace rrt
 {
@@ -19,6 +20,8 @@ namespace rrt
         kSpecular = 1 << 4,
         kAll = kReflection | kTransmission | kDiffuse | kGlossy | kSpecular
     };
+
+    inline constexpr glm::vec4 kBsdfLocalNormal = glm::vec4{ 0.0f, 1.0f, 0.0f, 0.0f };
 
     RRT_DEF_FLAG_ENUM_OPS(BxdfKind)
 
@@ -44,7 +47,7 @@ namespace rrt
 
     /*
      * p(\theta, \phi) = 1 / \pi cos\theta sin\theta
-     * 使用 Malley's method，在半球上均匀取点实际上和在圆上均匀取点一样
+     * 使用 Malley's method，在半球上以 pdf=cos\theta 取点实际上和在圆上均匀取点一样
      * 即 (r, \phi) = (\sqrt{\epsilon_1}, 2\pi\epsilon_2)
      * 返回取样的点的坐标
      */
@@ -102,6 +105,11 @@ namespace rrt
 
         virtual float GetPdf(const Vec3f& wo, const Vec3f& wi) const;
 
+        bool IsMatch(BxdfKind destKind) const;
+        bool IsSpecular() const;
+        bool IsReflection() const;
+        bool IsTransmission() const;
+
         const BxdfKind kind;
     };
 
@@ -137,6 +145,7 @@ namespace rrt
             : Bxdf{BxdfKind::kReflection | BxdfKind::kDiffuse}, m_r{r}
         {}
 
+        // The LambertianReflection constructor takes a reflectance spectrum , which gives the fraction of incident light that is scattered. 
         Spectrum Eval(const Vec3f& wo, const Vec3f& wi) const override;
         Spectrum SampledEval(const Vec3f& wo, Vec3f& wi,
                              const glm::vec2& sample,
@@ -146,5 +155,51 @@ namespace rrt
 
       private:
         const Spectrum m_r;
+    };
+
+    struct BsdfSampledEvalResult
+    {
+        Spectrum f;
+        Vec3f wiWorld;
+        float pdf;
+    };
+
+    class Bsdf
+    {
+      public:
+        // eta：折射率之比
+        // 不透明物体是 1
+        Bsdf(const SurfaceInteraction& interaction, float eta = 1.0f)
+            : m_shadingNormal{interaction.shadingNormal},
+              m_geometricNormal{interaction.geometyNormal},
+              m_tangent{interaction.dpdu},
+              m_biTangent{
+                  glm::cross(m_tangent, glm::vec3{interaction.shadingNormal})},
+              m_eta{eta}
+        {}
+
+        Vec3f WorldToLocal(const Vec3f& v) const;
+        Vec3f LocalToWorld(const Vec3f& v) const;
+        Spectrum Eval(const Vec3f& woWorld, const Vec3f& wiWorld,
+                      BxdfKind kind = BxdfKind::kAll) const;
+
+        BsdfSampledEvalResult SampledEval(const Vec3f& woWorld, BxdfKind kind,
+                                          const Vec2f& u);
+
+
+        std::vector<std::unique_ptr<Bxdf>> bxdfs;
+
+      private:
+        Vec3f m_shadingNormal, m_geometricNormal;
+        Vec3f m_tangent, m_biTangent;
+        float m_eta;
+        // inline static constexpr int kMaxBxdfs = 8;
+        // int m_bxdfCount;
+
+        // std::span<const Bxdf> GetBxdfs() const;
+        std::vector<std::uint32_t> GetMatchedBxdfIndices(BxdfKind kind);
+
+        // 判断 wo 与 wi 是否和  geometric normal 在同一半球
+        bool IsReflect(const Vec3f& wo, const Vec3f& wi) const;
     };
 } // namespace rrt

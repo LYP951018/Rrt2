@@ -7,8 +7,10 @@
 namespace rrt
 {
     Camera::Camera(const PerspectiveParam& perspectiveParam,
-                   const glm::mat4& worldToCamera, const FilmSize& filmSize)
-        : m_worldToCamera{worldToCamera}, m_filmSize{filmSize}
+                   const glm::mat4& worldToCamera, const FilmSize& filmSize,
+                   std::uint32_t samplesPerPixel)
+        : m_worldToCamera{worldToCamera},
+          film{std::make_unique<Film>(filmSize, samplesPerPixel)}
     {
         const float aspectRatio = filmSize.GetAspectRatio();
         m_cameraToScreen = glm::perspectiveLH<float>(
@@ -24,44 +26,26 @@ namespace rrt
         m_rayOrigin = (m_cameraToWorld * glm::vec4{glm::vec3{0.0f}, 1.0f});
     }
 
-    void Camera::GetRay(const glm::vec2& pixelPos, Ray& ray)
+    Ray Camera::GetRay(const glm::vec2& pixelPos) const
     {
-        ray.origin = m_rayOrigin;
         const glm::vec4 rasterPos4D = glm::vec4(pixelPos, 0.0f, 1.0f);
         const glm::vec4 invPersp = m_rasterToWorld * rasterPos4D;
         const glm::vec3 worldSpaceEndPoint = glm::vec3{invPersp / invPersp.w};
         const glm::vec3 direction =
             glm::normalize(worldSpaceEndPoint - m_rayOrigin);
-        ray.speed = direction;
+        return Ray{
+            .origin = m_rayOrigin,
+            .speed = direction
+        };
     }
 
-    void Camera::GenerateRays(pcg32_random_t& state, std::vector<Ray>& rays,
-                              std::uint32_t samplesPerPixel)
+    Vec2f FromContinuousToDiscrete(const Vec2f& cPos)
     {
-        auto [filmWidth, filmHeight] = m_filmSize;
-        const std::uint32_t samplesCount =
-            filmWidth * filmHeight * samplesPerPixel;
-        const glm::vec2 filmSizeVec2 = glm::vec2(
-            static_cast<float>(filmWidth), static_cast<float>(filmHeight));
-        rays.reserve(samplesCount);
-        std::vector<glm::vec2> pixelPoses(samplesPerPixel);
-        std::uint32_t samplesPerPixelWidth =
-            static_cast<std::uint32_t>(std::sqrt(samplesPerPixel));
-        for (std::uint32_t h = 0; h < filmHeight; ++h)
-        {
-            for (std::uint32_t w = 0; w < filmWidth; ++w)
-            {
-                Jitter(state, gsl::make_span(pixelPoses));
-                for (std::uint32_t i = 0; i < samplesPerPixel; ++i)
-                {
-                    Ray ray;
-                    glm::vec2& pixelPos = pixelPoses[i];
-                    pixelPos +=
-                        glm::vec2(static_cast<float>(w), static_cast<float>(h));
-                    GetRay(pixelPos, ray);
-                    rays.push_back(ray);
-                }
-            }
-        }
+        const auto convert = [](float f) { return std::floor(f + 0.5f); };
+        return Vec2f{convert(cPos.x), convert(cPos.y)};
+    }
+
+    void Film::AddSample(const Vec2i& pos, const Spectrum& luminance)
+    {
     }
 } // namespace rrt

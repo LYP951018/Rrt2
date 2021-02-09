@@ -1,6 +1,7 @@
 ﻿#include "Rrt2/Scene.hpp"
 #include "Rrt2/Geometries/TriangleMesh.hpp"
 #include "Rrt2/Accelerations/Bvh.hpp"
+#include "Rrt2/Accelerations/ZeroAcceleration.hpp"
 #include <cmath>
 #include <ctime>
 
@@ -8,11 +9,15 @@ namespace rrt
 {
     Scene::Scene()
     {
-        pcg32_srandom_r(&m_randState, std::time(0), (intptr_t)&m_randState);
         m_acceleration = std::make_unique<Bvh>(this);
     }
 
-    std::optional<SurfaceInteraction> Scene::Trace(const Ray& ray)
+    std::optional<SurfaceInteraction> Scene::Trace(const Ray& ray) const
+    {
+        return m_acceleration->Trace(ray);
+    }
+
+    bool Scene::Hit(const Ray& ray) const
     {
         return m_acceleration->Hit(ray);
     }
